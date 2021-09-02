@@ -8,27 +8,33 @@ import { ListItem, List } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
 import { Paper } from '@material-ui/core';
 import { Box } from '@material-ui/core';
-import { PinDropSharp } from '@material-ui/icons';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 
 const toggleChecked = ({ _id, isChecked }) =>
   Meteor.call('tasks.setIsChecked', _id, !isChecked);
 
-
 const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 
-export const GerenciamentoTarefas = () => {
+export const GerenciamentoTarefas = (props) => {
 
   const user = useTracker(() => Meteor.user());
   const classes = estilos();
-
+  const history = useHistory();
   const [hideCompleted, setHideCompleted] = useState(false);
-
   const hideCompletedFilter = { isChecked: { $ne: true } };
-
   const userFilter = user ? { userId: user._id } : {};
+  const viewTask = ({ _id }) => {
+    history.push('/dados/' + _id);
+    localStorage.setItem('readonly', 'true');
+  };
+  
+  const editTask = ({ _id }) => {
+    history.push('/dados/' + _id);
+    localStorage.setItem('readonly', 'false');
+  };
 
   const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
+
 
   const { tasks, pendingTasksCount, isLoading } = useTracker(() => {
     const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
@@ -112,8 +118,8 @@ export const GerenciamentoTarefas = () => {
               key={task._id}
               task={task}
               onCheckboxClick={toggleChecked}
-              //onViewClick={viewTask}
-              //onEditClick={editTask}
+              onViewClick={viewTask}
+              onEditClick={editTask}
               onDeleteClick={deleteTask}
               user={getUser(task)}
               showButtons={true}

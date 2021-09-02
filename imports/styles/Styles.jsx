@@ -48,6 +48,14 @@ const estilos = makeStyles({
   },
   login:{
     
+  },
+  textfield:{
+    marginTop:'16px',
+  },
+  buttonCadastro:{
+    marginTop:'16px',
+    marginLeft:'4px',
+    marginRight:'4px',
   }
 
 });

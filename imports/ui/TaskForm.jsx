@@ -11,7 +11,6 @@ import { Box, Paper } from '@material-ui/core';
 const toggleChecked = ({ _id, isChecked }) =>
   Meteor.call('tasks.setIsChecked', _id, !isChecked);
 
-const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 
 export const TaskForm = () => {
 
@@ -106,7 +105,6 @@ export const TaskForm = () => {
               key={task._id}
               task={task}
               onCheckboxClick={toggleChecked}
-              onDeleteClick={deleteTask}
               user={getUser(task)}
               showButtons={false}
             />

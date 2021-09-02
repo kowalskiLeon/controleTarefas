@@ -2,17 +2,42 @@ import { check } from 'meteor/check';
 import { TasksCollection } from '/imports/db/TasksCollection';
 
 Meteor.methods({
-  'tasks.insert'(text) {
+  'tasks.insert'(text, descricao, data, userID) {
     check(text, String);
-
-    if (!this.userId) {
-      throw new Meteor.Error('Not authorized.');
+    check(descricao, String);
+    if (!userID) {
+      userID = this.userID;
+      if (!userID) {
+        throw new Meteor.Error('Not authorized.');
+      }
     }
 
     TasksCollection.insert({
       text,
+      descricao,
+      data,
       createdAt: new Date(),
-      userId: this.userId,
+      userId: userId,
+    });
+  },
+
+  'tasks.update'(id, text, descricao, data, userID) {
+    check(text, String);
+
+    if (!userID) {
+      userID == this.userID;
+      if (!userID) {
+        throw new Meteor.Error('Not authorized.');
+      }
+    }
+
+    TasksCollection.update(id, {
+      $set: {
+        text,
+        descricao,
+        data,
+        userId
+      },
     });
   },
 
