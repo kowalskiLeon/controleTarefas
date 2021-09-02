@@ -15,17 +15,6 @@ const toggleChecked = ({ _id, isChecked }) =>
   Meteor.call('tasks.setIsChecked', _id, !isChecked);
 
 
-const viewTask = ({ _id }) => {
-  const history = useHistory();
-  history.push('/dados/' + _id);
-  localStorage.setItem('readonly', true)
-}
-
-const editTask = ({ _id }) => {
-  history.push('/dados/' + _id);
-  localStorage.setItem('readonly', false)
-}
-
 const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 
 export const GerenciamentoTarefas = () => {
@@ -40,7 +29,6 @@ export const GerenciamentoTarefas = () => {
   const userFilter = user ? { userId: user._id } : {};
 
   const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
-
 
   const { tasks, pendingTasksCount, isLoading } = useTracker(() => {
     const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
@@ -124,8 +112,8 @@ export const GerenciamentoTarefas = () => {
               key={task._id}
               task={task}
               onCheckboxClick={toggleChecked}
-              onViewClick={viewTask}
-              onEditClick={editTask}
+              //onViewClick={viewTask}
+              //onEditClick={editTask}
               onDeleteClick={deleteTask}
               user={getUser(task)}
               showButtons={true}
