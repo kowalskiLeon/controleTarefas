@@ -6,7 +6,10 @@ import { TaskForm } from './TaskForm';
 import { LoginForm } from './LoginForm';
 import BarraDeFerramentas, { BarraFerramentas } from './BarraDeFerramentas';
 import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import { GerenciamentoTarefas } from './GerenciamentoTarefas';
 import estilos from '../styles/Styles';
+import { Container } from '@material-ui/core';
+import { DadosTarefa } from './DadosTarefa';
 
 const toggleChecked = ({ _id, isChecked }) =>
   Meteor.call('tasks.setIsChecked', _id, !isChecked);
@@ -16,7 +19,7 @@ const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 export const App = () => {
   const classes = estilos();
   const user = useTracker(() => Meteor.user());
-  
+
 
   const [hideCompleted, setHideCompleted] = useState(false);
 
@@ -26,7 +29,7 @@ export const App = () => {
 
   const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
-  const {tasks, pendingTasksCount, isLoading } = useTracker(() => {
+  const { tasks, pendingTasksCount, isLoading } = useTracker(() => {
     const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
     if (!Meteor.user()) {
       return noDataAvailable;
@@ -57,15 +60,23 @@ export const App = () => {
       <div className={classes.conteudo}>
         <div className="main">
           <BrowserRouter>
-            <BarraDeFerramentas user={user}/>
-            <Route exact path="/tarefas">
-              {user ? <TaskForm /> :
-                <Redirect to="/" />}
-            </Route>
-            <Route exact path="/">
-              {!user ? <LoginForm /> :
-                <Redirect to="/tarefas" />}
-            </Route>
+            <BarraDeFerramentas user={user} />
+              <Route exact path="/tarefas">
+                {user ? <TaskForm /> :
+                  <Redirect to="/" />}
+              </Route>
+              <Route exact path="/gerenciamento">
+                {user ? <GerenciamentoTarefas /> :
+                  <Redirect to="/" />}
+              </Route>
+              <Route exact path="/dados">
+                {user ? <DadosTarefa /> :
+                  <Redirect to="/" />}
+              </Route>
+              <Route exact path="/">
+                {!user ? <LoginForm /> :
+                  <Redirect to="/tarefas" />}
+              </Route>
           </BrowserRouter>
         </div>
       </div>

@@ -4,37 +4,46 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AssignmentReturnedIcon from '@material-ui/icons/AssignmentReturned';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import EditIcon from '@material-ui/icons/Edit';
 import { Checkbox } from '@material-ui/core';
 import estilos from '../styles/Styles';
 
-export const Task = ({ task, onCheckboxClick, onDeleteClick, user}) => {
+export const Task = ({ task, onCheckboxClick, onViewClick, onEditClick, onDeleteClick, user, showButtons }) => {
   const classes = estilos();
-  const isSameUser = () => {
-    return user.id == task.userId
+  function isSameUser() {
+    if (user.id == task.userId) {
+      return true
+    }
+    return false;
   }
 
   return (
     <ListItem>
-      <Grid item xs={1}>
+      <Grid item xs={1} lg={1}>
         <ListItemIcon>
           <AssignmentReturnedIcon />
         </ListItemIcon>
       </Grid>
-      <Grid item xs={1}>
+      {/* <Grid item xs={1}>
         <Checkbox
           checked={!!task.isChecked}
           onClick={() => onCheckboxClick(task)}
           readOnly
         />
-      </Grid>
-      <Grid item xs={4}>
+      </Grid> */}
+      <Grid item xs={showButtons ?3:5} lg={showButtons ?4:5}>
         <span>{task.text}</span>
       </Grid>
-      <Grid item xs={3}>
-        <span>{user.username}</span>
+      <Grid item xs={showButtons ?3:5} lg={showButtons ?4:5}>
+        <span>{user.name?user.name:user.username}</span>
       </Grid>
-      <Grid item xs={1}>
-        {isSameUser ? <Button className={classes.delete}  onClick={() => onDeleteClick(task)}><DeleteIcon /></Button> : <div></div>}
+      <Grid item xs={showButtons ?5:false} lg={showButtons ?3:false}>
+        {showButtons ? <div>
+          <Button className={classes.vizualize} onClick={() => onViewClick(task)}><VisibilityIcon /></Button>
+          <Button disabled={isSameUser()} className={classes.edit} onClick={() => onEditClick(task)}><EditIcon /></Button>
+          <Button disabled={isSameUser()} className={classes.delete} onClick={() => onDeleteClick(task)}><DeleteIcon /></Button>
+        </div>: ''}
       </Grid>
     </ListItem>
   );

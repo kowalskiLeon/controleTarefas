@@ -6,14 +6,29 @@ import estilos from '../styles/Styles';
 import { TasksCollection } from '/imports/db/TasksCollection';
 import { ListItem, List } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
-import { Box, Paper } from '@material-ui/core';
+import { Paper } from '@material-ui/core';
+import { Box } from '@material-ui/core';
+import { PinDropSharp } from '@material-ui/icons';
+import { useHistory } from 'react-router';
 
 const toggleChecked = ({ _id, isChecked }) =>
   Meteor.call('tasks.setIsChecked', _id, !isChecked);
 
+
+const viewTask = ({ _id }) => {
+  const history = useHistory();
+  history.push('/dados/' + _id);
+  localStorage.setItem('readonly', true)
+}
+
+const editTask = ({ _id }) => {
+  history.push('/dados/' + _id);
+  localStorage.setItem('readonly', false)
+}
+
 const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 
-export const TaskForm = () => {
+export const GerenciamentoTarefas = () => {
 
   const user = useTracker(() => Meteor.user());
   const classes = estilos();
@@ -94,11 +109,14 @@ export const TaskForm = () => {
           <ListItem>
             <Grid item xs={1} lg={1}>
             </Grid>
-            <Grid item xs={5} lg={5}>
+            <Grid item xs={3} lg={4}>
               <span>Nome</span>
             </Grid>
-            <Grid item xs={5} lg={5}>
+            <Grid item xs={3} lg={4}>
               <span>Usuário</span>
+            </Grid>
+            <Grid item xs={5} lg={3}>
+              <span>Ações</span>
             </Grid>
           </ListItem>
           {tasks.map(task => (
@@ -106,9 +124,11 @@ export const TaskForm = () => {
               key={task._id}
               task={task}
               onCheckboxClick={toggleChecked}
+              onViewClick={viewTask}
+              onEditClick={editTask}
               onDeleteClick={deleteTask}
               user={getUser(task)}
-              showButtons={false}
+              showButtons={true}
             />
           ))}
         </List>
