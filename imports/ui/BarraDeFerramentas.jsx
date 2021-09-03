@@ -85,7 +85,7 @@ const BarraDeFerramentas = (props) => {
                         </Grid>
                         <Grid item xs={4} lg={4}>
                             {props.user ?
-                                <Box display="flex" flexDirection="row-reverse" justifyContent="flex-end">
+                                <Box display="flex" flexDirection="row-reverse">
                                     <IconButton className={classes.menu} onClick={toggleDrawer('right', true)}>
                                         <MenuIcon />
                                     </IconButton>
@@ -103,7 +103,9 @@ const BarraDeFerramentas = (props) => {
                                 </Box>
                                 :
                                 <div>
-
+                                    <Box>
+                                        <Link className={classes.signLink} to="cadastro/">Cadastre-se</Link>
+                                    </Box>
                                 </div>
                             }
                         </Grid>

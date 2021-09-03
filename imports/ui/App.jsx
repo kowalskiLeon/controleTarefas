@@ -8,6 +8,7 @@ import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 import { GerenciamentoTarefas } from './GerenciamentoTarefas';
 import estilos from '../styles/Styles';
 import { DadosDaTarefa } from './DadosTarefa';
+import { DadosDaPessoa } from './DadosPessoa';
 
 export const App = () => {
   const classes = estilos();
@@ -37,6 +38,10 @@ export const App = () => {
               </Route>
               <Route exact path="/">
                 {!user ? <LoginForm /> :
+                  <Redirect to="/tarefas" />}
+              </Route>
+              <Route exact path="/cadastro">
+                {!user ? <DadosDaPessoa /> :
                   <Redirect to="/tarefas" />}
               </Route>
           </BrowserRouter>

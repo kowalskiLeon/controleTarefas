@@ -13,49 +13,59 @@ const estilos = makeStyles({
   card: {
     height: '100%',
     padding: '2%',
-    marginTop:'33%'
+    marginTop: '33%'
   },
   botao: {
     backgroundColor: '#78a6d0 !important',
-    marginRight:'8px'
+    marginRight: '8px'
   },
   menu: {
     backgroundColor: '#2b2b2b !important',
-    borderRadius:'50%',
+    borderRadius: '50%',
     color: 'white',
-    marginRight:'8px'
+    marginRight: '8px'
   },
   delete: {
     backgroundColor: '#ff8989 !important',
-    margin:'4px',
+    margin: '4px',
     '&:hover': {
       backgroundColor: '#0069d9',
     },
   },
   edit: {
     backgroundColor: '#ffc246 !important',
-    margin:'4px',
+    margin: '4px',
     '&:hover': {
       backgroundColor: '#0069d9',
     },
   },
   vizualize: {
     backgroundColor: '#8dcbf9 !important',
-    margin:'4px',
+    margin: '4px',
     '&:hover': {
       backgroundColor: '#0069d9',
     },
   },
-  login:{
-    
+  login: {
+
   },
-  textfield:{
-    marginTop:'16px',
+  textfield: {
+    marginTop: '16px',
   },
-  buttonCadastro:{
-    marginTop:'16px',
-    marginLeft:'4px',
-    marginRight:'4px',
+  buttonCadastro: {
+    marginTop: '48px',
+    marginLeft: '8px',
+    marginRight: '8px',
+  },
+  signLink: {
+    color: 'white',
+    textDecoration: 'none',
+    fontSize: '2em',
+    '&:hover': {
+      color: '#0069d9',
+      
+    },
+
   }
 
 });

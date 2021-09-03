@@ -19,44 +19,67 @@ export const LoginForm = () => {
   };
 
   return (
-    <Grid
-      display="flex"
-      container
+    <Grid container
       direction="column"
       justifyContent="center"
       alignItems="center"
       height={1}
       className={classes.conteudo}
-      
+
     >
       <form onSubmit={submit}>
         <Card className={classes.card}>
           <Box margin={5}>
-            <TextField
-              id="outlined-basic"
-              type="text"
-              placeholder="Usuário"
-              name="username"
-              required
-              onChange={e => setUsername(e.target.value)}
-            />
+            <h2 align='center'>Boas vindas!</h2>
+            <h4 align='center'>Forneça nome de usuário e senha para entrar!</h4>
+          </Box>
+          <Box marginY={5} marginX="auto">
+            <Grid container
+              direction="row"
+              justifyContent="center"
+              alignItems="center">
+              <TextField
+                align='center'
+                id="outlined-basic"
+                type="text"
+                placeholder="Usuário"
+                name="username"
+                required
+                onChange={e => setUsername(e.target.value)}
+              />
+            </Grid>
+
           </Box>
 
           <Box margin={5}>
-            <TextField
-              id="outlined-basic"
-              type="password"
-              placeholder="Senha"
-              name="password"
-              required
-              onChange={e => setPassword(e.target.value)}
-            />
+            <Grid container
+              direction="row"
+              justifyContent="center"
+              alignItems="center">
+              <TextField
+                id="outlined-basic"
+                type="password"
+                placeholder="Senha"
+                name="password"
+                required
+                onChange={e => setPassword(e.target.value)}
+              />
+            </Grid>
           </Box>
-          <Box margin='auto' justifyContent="center"
+          <Box margin='auto'
             alignItems="center">
-            <Button color='primary' type='submit'>
-              Entrar
-            </Button>
+            <Grid containter direction="column" justifyContent='center'>
+              <Grid container
+                direction="row"
+                justifyContent="center"
+                alignItems="center">
+                <Box marginY={2}>
+                  <Button color='primary' type='submit'>
+                    Entrar
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
           </Box>
 
         </Card>

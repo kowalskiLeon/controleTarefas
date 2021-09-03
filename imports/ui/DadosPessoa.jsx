@@ -10,10 +10,11 @@ import { useEffect } from 'react';
 
 
 
-export const DadosDaTarefa = (props) => {
+export const DadosDaPessoa = (props) => {
     const classes = estilos();
     const history = useHistory();
     let { path, url } = useRouteMatch();
+    const ro = localStorage.getItem('readonly') === 'true' ? true : false;
     const [id, setID] = useState('');
     const [text, setText] = useState('');
     const [descricao, setDescricao] = useState('');
@@ -21,7 +22,6 @@ export const DadosDaTarefa = (props) => {
     const [userID, setuserID] = useState('');
     const [carregando, setCarregando] = useState(false);
     const params = useParams();
-    const ro = localStorage.getItem('readonly') === 'true' && params.id? true : false;
 
 
     useEffect(() => {
@@ -32,10 +32,11 @@ export const DadosDaTarefa = (props) => {
     }, []);
 
 
-    async function carregarDados() {
+    function carregarDados() {
         setCarregando(true);
         setID(id);
-        const tempTask = await TasksCollection.find({ '_id': id });
+        const tempTask = TasksCollection.find({ '_id': id });
+        console.log(tempTask)
         setText(tempTask.text)
         setDescricao(tempTask.descricao)
         setData(tempTask.data)
@@ -79,15 +80,16 @@ export const DadosDaTarefa = (props) => {
                                 direction="row"
                                 justifyContent="center"
                                 alignItems="center">
-                                {ro?<h3>Visulizar Tarefa - ID: {params.id}</h3>: <h3>Editar Tarefa - ID: {params.id}</h3>}
+                                <h3>Editar Pessoa - ID: {params.id}</h3>
                             </Grid>
                             :
-                                <Grid container
-                                    direction="row"
-                                    justifyContent="center"
-                                    alignItems="center">
-                                    <h3>Cadastrar Tarefa</h3>
-                                </Grid>}
+                            <Grid container
+                                direction="row"
+                                justifyContent="center"
+                                alignItems="center">
+                                <h3>Cadastrar Pessoa</h3>
+                            </Grid>
+                        }
                     </Grid>
                     <form className="task-form" onSubmit={handleSubmit}>
                         <Grid container
@@ -99,11 +101,9 @@ export const DadosDaTarefa = (props) => {
 
                                 <TextField id="outlined-basic"
                                     type="text"
-                                    placeholder="Nome da Tarefa"
+                                    placeholder="Nome da Pessoa"
                                     value={text}
-                                    InputProps={{
-                                        readOnly: ro,
-                                      }}
+                                    readOnly={ro}
                                     className={classes.textfield}
                                     onChange={e => setText(e.target.value)}
                                 />
@@ -115,11 +115,9 @@ export const DadosDaTarefa = (props) => {
 
                                 <TextField id="outlined-basic"
                                     type="text"
-                                    placeholder="Descrição da Tarefa"
+                                    placeholder="Descrição da Pessoa"
                                     value={descricao}
-                                    InputProps={{
-            readOnly: ro,
-          }}
+                                    readOnly={ro}
                                     className={classes.textfield}
                                     onChange={e => setDescricao(e.target.value)}
                                 />
@@ -131,11 +129,9 @@ export const DadosDaTarefa = (props) => {
 
                                 <TextField id="outlined-basic"
                                     type="date"
-                                    placeholder="Data da Tarefa"
+                                    placeholder="Data da Pessoa"
                                     value={data}
-                                    InputProps={{
-            readOnly: ro,
-          }}
+                                    readOnly={ro}
                                     className={classes.textfield}
                                     onChange={e => setData(e.target.value)}
                                 />
@@ -149,9 +145,7 @@ export const DadosDaTarefa = (props) => {
                                     type="text"
                                     placeholder="Id do Usuário"
                                     value={userID}
-                                    InputProps={{
-            readOnly: ro,
-          }}
+                                    readOnly={ro}
                                     className={classes.textfield}
                                     onChange={e => setuserID(e.target.value)}
                                 />
@@ -161,10 +155,10 @@ export const DadosDaTarefa = (props) => {
                                 justifyContent="center"
                                 alignItems="center">
                                 <Button color="primary" className={classes.buttonCadastro} type="submit">
-                                    {params.id?
-                                    'Atualizar Tarefa'
-                                    :
-                                    'Adicionar Tarefa'    
+                                    {params.id ?
+                                        'Editar Pessoa'
+                                        :
+                                        'Adicionar Pessoa'
                                     }
                                 </Button>
                                 <Button className={classes.buttonCadastro} onClick={limpar}>Limpar</Button>

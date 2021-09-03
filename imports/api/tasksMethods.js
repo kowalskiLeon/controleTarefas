@@ -2,23 +2,24 @@ import { check } from 'meteor/check';
 import { TasksCollection } from '/imports/db/TasksCollection';
 
 Meteor.methods({
-  'tasks.insert'(text, descricao, data, userID) {
+  'tasks.insert'(text, descricao, data, user) {
     check(text, String);
     check(descricao, String);
-    if (!userID) {
-      userID = this.userID;
-      if (!userID) {
+    if (!user) {
+      user = this.userID;
+      if (!user) {
         throw new Meteor.Error('Not authorized.');
       }
     }
-
-    TasksCollection.insert({
+    const ret = TasksCollection.insert({
       text,
       descricao,
       data,
       createdAt: new Date(),
-      userId: userId,
+      userId: user,
     });
+
+    return ret;
   },
 
   'tasks.update'(id, text, descricao, data, userID) {
