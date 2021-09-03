@@ -7,6 +7,10 @@ import { useRouteMatch, Switch, Route, useHistory } from 'react-router';
 import { useParams } from 'react-router';
 import { TasksCollection } from '../db/TasksCollection';
 import { useEffect } from 'react';
+import { Checkbox } from '@material-ui/core';
+import { useRef } from 'react';
+
+import { useTracker } from 'meteor/react-meteor-data';
 
 
 
@@ -15,32 +19,57 @@ export const DadosDaTarefa = (props) => {
     const history = useHistory();
     let { path, url } = useRouteMatch();
     const [id, setID] = useState('');
+    // this.text = useRef('');
+    // this.descricao = useRef('');
+    // this.data = useRef('');
+    // this.userID = useRef('');
+    this.andamento = React.createRef(false);
+    this.concluida = React.createRef(false);
     const [text, setText] = useState('');
     const [descricao, setDescricao] = useState('');
     const [data, setData] = useState('');
     const [userID, setuserID] = useState('');
-    const [carregando, setCarregando] = useState(false);
+    const [visivel, setVisivel] = useState(true);
+    const [cadastrada, setCadastrada] = useState(true);
+    const [andamento, setAndamento] = useState(false);
+    const [concluida, setConcluida] = useState(false);
     const params = useParams();
-    const ro = localStorage.getItem('readonly') === 'true' && params.id? true : false;
+    const ro = localStorage.getItem('readonly') === 'true' && params.id ? true : false;
+    const { task, isLoading } = useTracker(() => {
+        const noDataAvailable = { tasks: [] };
+        if (!Meteor.user()) {
+            return noDataAvailable;
+        }
+        const handler = Meteor.subscribe('tasks');
 
-
-    useEffect(() => {
-        if (params.id) {
-            carregarDados();
+        if (!handler.ready()) {
+            return { ...noDataAvailable, isLoading: true };
         }
 
-    }, []);
+        const task = TasksCollection.find({
+            _id: params.id
+        }).fetch();
 
+        return { task };
+    });
 
-    async function carregarDados() {
-        setCarregando(true);
-        setID(id);
-        const tempTask = await TasksCollection.find({ '_id': id });
-        setText(tempTask.text)
-        setDescricao(tempTask.descricao)
-        setData(tempTask.data)
-        setuserID(tempTask.userID)
-    }
+    useEffect(() => {
+        if (task) {
+            if(task[0]){
+                const tarefa = task[0];
+                setID(tarefa.id);
+                setText(tarefa.text)
+                setDescricao(tarefa.descricao)
+                setVisivel(tarefa.visivel)
+                setuserID(tarefa.userId)
+                setData(tarefa.data)
+                setAndamento(tarefa.andamento)
+                setCadastrada(tarefa.cadastrada)
+                setConcluida(tarefa.concluida)
+            }
+        }
+
+    }, task);
 
     const handleSubmit = e => {
         e.preventDefault();
@@ -50,8 +79,8 @@ export const DadosDaTarefa = (props) => {
         if (!data) return;
         if (!userID) return;
         let r = 'teste';
-        if (id === '') r = Meteor.call('tasks.insert', text, descricao, data, userID);
-        else r = Meteor.call('tasks.update', id, text, descricao, data, userID);
+        if (id === '') r = Meteor.call('tasks.insert', text, descricao, data, userID, visivel, cadastrada, andamento, concluida);
+        else r = Meteor.call('tasks.update', id, text, descricao, data, userID, visivel, cadastrada, andamento, concluida);
         console.log(r);
     };
 
@@ -62,11 +91,15 @@ export const DadosDaTarefa = (props) => {
 
     const limpar = e => {
         e.preventDefault();
-        setID('');
         setText('');
         setDescricao('');
         setData('');
+        setuserID('')
+        setVisivel(true);
+        set
     }
+
+
 
     return (
         <Box marginY={2} padding={3} >
@@ -75,19 +108,27 @@ export const DadosDaTarefa = (props) => {
                     <Grid container
                         direction="column">
                         {params.id ?
-                            <Grid container
-                                direction="row"
-                                justifyContent="center"
-                                alignItems="center">
-                                {ro?<h3>Visulizar Tarefa - ID: {params.id}</h3>: <h3>Editar Tarefa - ID: {params.id}</h3>}
-                            </Grid>
-                            :
+                            <div>
                                 <Grid container
                                     direction="row"
                                     justifyContent="center"
                                     alignItems="center">
-                                    <h3>Cadastrar Tarefa</h3>
-                                </Grid>}
+                                    {ro ? <h3>Visulizar Tarefa - ID: {params.id}</h3> : <h3>Editar Tarefa - ID: {params.id}</h3>}
+                                </Grid>
+                                {ro ? <Grid container
+                                    direction="row"
+                                    justifyContent="center"
+                                    alignItems="center">
+                                    <h4>Edição está travada.</h4>
+                                </Grid> : ''}
+                            </div>
+                            :
+                            <Grid container
+                                direction="row"
+                                justifyContent="center"
+                                alignItems="center">
+                                <h3>Cadastrar Tarefa</h3>
+                            </Grid>}
                     </Grid>
                     <form className="task-form" onSubmit={handleSubmit}>
                         <Grid container
@@ -103,7 +144,7 @@ export const DadosDaTarefa = (props) => {
                                     value={text}
                                     InputProps={{
                                         readOnly: ro,
-                                      }}
+                                    }}
                                     className={classes.textfield}
                                     onChange={e => setText(e.target.value)}
                                 />
@@ -118,8 +159,8 @@ export const DadosDaTarefa = (props) => {
                                     placeholder="Descrição da Tarefa"
                                     value={descricao}
                                     InputProps={{
-            readOnly: ro,
-          }}
+                                        readOnly: ro,
+                                    }}
                                     className={classes.textfield}
                                     onChange={e => setDescricao(e.target.value)}
                                 />
@@ -134,8 +175,8 @@ export const DadosDaTarefa = (props) => {
                                     placeholder="Data da Tarefa"
                                     value={data}
                                     InputProps={{
-            readOnly: ro,
-          }}
+                                        readOnly: ro,
+                                    }}
                                     className={classes.textfield}
                                     onChange={e => setData(e.target.value)}
                                 />
@@ -150,8 +191,8 @@ export const DadosDaTarefa = (props) => {
                                     placeholder="Id do Usuário"
                                     value={userID}
                                     InputProps={{
-            readOnly: ro,
-          }}
+                                        readOnly: ro,
+                                    }}
                                     className={classes.textfield}
                                     onChange={e => setuserID(e.target.value)}
                                 />
@@ -160,16 +201,56 @@ export const DadosDaTarefa = (props) => {
                                 direction="row"
                                 justifyContent="center"
                                 alignItems="center">
-                                <Button color="primary" className={classes.buttonCadastro} type="submit">
-                                    {params.id?
-                                    'Atualizar Tarefa'
-                                    :
-                                    'Adicionar Tarefa'    
-                                    }
-                                </Button>
-                                <Button className={classes.buttonCadastro} onClick={limpar}>Limpar</Button>
-                                <Button className={classes.buttonCadastro} onClick={voltar}> Voltar</Button>
+
+                                Visivel para todos?
+                                <Checkbox
+                                    checked={visivel}
+                                    onChange={e => setVisivel(!visivel)}
+                                    inputProps={{ 'aria-label': 'primary checkbox' }, {
+                                        readOnly: ro,
+                                        disabled: ro,
+                                    }}
+                                />
                             </Grid>
+                            {ro ?
+                                <Grid container
+                                    direction="row"
+                                    justifyContent="center"
+                                    alignItems="center">
+                                    Cadastrada
+                                    <Checkbox
+                                        checked={cadastrada}
+                                        onChange={e => setCadastrada(!cadastrada)}
+                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                    />
+                                    Andamento
+                                    <Checkbox
+                                        checked={andamento}
+                                        onChange={e => setAndamento(!andamento)}
+                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                    />
+                                    Concluída
+                                    <Checkbox
+                                        checked={concluida}
+                                        onChange={e => setConcluida(!concluida)}
+                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                    />
+                                </Grid>
+                                :
+                                <Grid container
+                                    direction="row"
+                                    justifyContent="center"
+                                    alignItems="center">
+                                    <Button color="primary" className={classes.buttonCadastro} type="submit">
+                                        {params.id ?
+                                            'Atualizar Tarefa'
+                                            :
+                                            'Adicionar Tarefa'
+                                        }
+                                    </Button>
+                                    <Button className={classes.buttonCadastro} onClick={limpar}>Limpar</Button>
+                                    <Button className={classes.buttonCadastro} onClick={voltar}> Voltar</Button>
+                                </Grid>}
                         </Grid>
                     </form>
                 </Box>

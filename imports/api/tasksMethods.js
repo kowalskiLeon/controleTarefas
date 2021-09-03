@@ -2,7 +2,7 @@ import { check } from 'meteor/check';
 import { TasksCollection } from '/imports/db/TasksCollection';
 
 Meteor.methods({
-  'tasks.insert'(text, descricao, data, user) {
+  'tasks.insert'(text, descricao, data, user, visivel, cadastrada, andamento, concluida) {
     check(text, String);
     check(descricao, String);
     if (!user) {
@@ -15,6 +15,10 @@ Meteor.methods({
       text,
       descricao,
       data,
+      visivel, 
+      cadastrada, 
+      andamento, 
+      concluida,
       createdAt: new Date(),
       userId: user,
     });
@@ -22,12 +26,12 @@ Meteor.methods({
     return ret;
   },
 
-  'tasks.update'(id, text, descricao, data, userID) {
+  'tasks.update'(id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida) {
     check(text, String);
 
-    if (!userID) {
-      userID == this.userID;
-      if (!userID) {
+    if (!userId) {
+      userId == this.userId;
+      if (!userId) {
         throw new Meteor.Error('Not authorized.');
       }
     }
@@ -37,6 +41,10 @@ Meteor.methods({
         text,
         descricao,
         data,
+        visivel, 
+        cadastrada, 
+        andamento, 
+        concluida,
         userId
       },
     });
