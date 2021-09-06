@@ -9,6 +9,7 @@ import { Grid } from '@material-ui/core';
 import { Paper } from '@material-ui/core';
 import { Box } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
+import { Button } from '@material-ui/core';
 
 const toggleChecked = ({ _id, isChecked }) =>
   Meteor.call('tasks.setIsChecked', _id, !isChecked);
@@ -27,7 +28,7 @@ export const GerenciamentoTarefas = (props) => {
     history.push('/dados/' + _id);
     localStorage.setItem('readonly', 'true');
   };
-  
+
   const editTask = ({ _id }) => {
     history.push('/dados/' + _id);
     localStorage.setItem('readonly', 'false');
@@ -78,53 +79,61 @@ export const GerenciamentoTarefas = (props) => {
     return Meteor.users.findOne(task.userId)
   }
 
+  const cadastrarTarefa = e => {
+    e.preventDefault();
+    history.push('/dados');
+  }
+
   return (
-    <Box marginY={2} padding={3} >
-      {/* <div className="filter">
-        <button onClick={() => setHideCompleted(!hideCompleted)}>
-          {hideCompleted ? 'Show All' : 'Hide Completed'}
-        </button>
-      </div> */}
-
-      {isLoading && <div className="loading">loading...</div>}
-      {/* <form className="task-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Type to add new tasks"
-          value={text}
-          onChange={e => setText(e.target.value)}
-        />
-
-        <button type="submit">Add Task</button>
-      </form> */}
-
+    <Box marginY={2} marginX={5} padding={3} >
       <Paper>
         <List component="nav" aria-label="main mailbox folders" className="tasks">
-          <ListItem>
-            <Grid item xs={1} lg={1}>
-            </Grid>
-            <Grid item xs={3} lg={4}>
-              <span>Nome</span>
-            </Grid>
-            <Grid item xs={3} lg={4}>
-              <span>Usuário</span>
-            </Grid>
-            <Grid item xs={5} lg={3}>
-              <span>Ações</span>
-            </Grid>
-          </ListItem>
-          {tasks.map(task => (
-            <Task
-              key={task._id}
-              task={task}
-              onCheckboxClick={toggleChecked}
-              onViewClick={viewTask}
-              onEditClick={editTask}
-              onDeleteClick={deleteTask}
-              user={getUser(task)}
-              showButtons={true}
-            />
-          ))}
+          {tasks.length > 0 ?
+            <div>
+              <ListItem>
+                <Grid item xs={1} lg={1}>
+                </Grid>
+                <Grid item xs={3} lg={4}>
+                  <span>Nome</span>
+                </Grid>
+                <Grid item xs={3} lg={4}>
+                  <span>Usuário</span>
+                </Grid>
+                <Grid item xs={5} lg={3}>
+                  <span>Ações</span>
+                </Grid>
+              </ListItem>
+              {tasks.map(task => (
+                <Task
+                  key={task._id}
+                  task={task}
+                  onCheckboxClick={toggleChecked}
+                  onViewClick={viewTask}
+                  onEditClick={editTask}
+                  onDeleteClick={deleteTask}
+                  user={getUser(task)}
+                  showButtons={true}
+                />
+              ))}
+            </div>
+            :
+            <div>
+              <ListItem>
+                <Grid item xs={12} lg={12}>
+                  <Box display='flex' marginBottom={3}>
+                    <Grid container direction='column' justifyContent='center'>
+                      <Grid container direction='row' justifyContent='center'><h2>Sem tarefas cadastradas.</h2></Grid>
+                      <Grid container direction='row' justifyContent='center'>
+                        <Button className={classes.buttonCadastro} onClick={cadastrarTarefa}>
+                          Cadastrar uma tarefa
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Grid>
+              </ListItem>
+            </div>
+          }
         </List>
       </Paper>
     </Box>

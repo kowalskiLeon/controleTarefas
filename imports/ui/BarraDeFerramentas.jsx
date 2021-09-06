@@ -15,6 +15,7 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import { IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import PersonAddRoundedIcon from '@material-ui/icons/PersonAddRounded';
 
 
 const BarraDeFerramentas = (props) => {
@@ -76,10 +77,9 @@ const BarraDeFerramentas = (props) => {
                         justifyContent="center"
                         alignItems="center">
                         <Grid item xs={8} lg={8}>
-                            <Box marginLeft={5} marginRight={5}>
+                            <Box marginRight={5}>
                                 <h1>
-                                    📝️ Controle de Tarefas
-                                    {props.pendingTasksTitle}
+                                    Controle de Tarefas
                                 </h1>
                             </Box>
                         </Grid>
@@ -104,7 +104,7 @@ const BarraDeFerramentas = (props) => {
                                 :
                                 <div>
                                     <Box>
-                                        <Link className={classes.signLink} to="cadastro/">Cadastre-se</Link>
+                                       <Link className={classes.signLink} to="cadastro/">Cadastre-se</Link>
                                     </Box>
                                 </div>
                             }
