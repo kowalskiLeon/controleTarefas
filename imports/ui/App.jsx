@@ -20,30 +20,34 @@ export const App = () => {
         <div className="main">
           <BrowserRouter>
             <BarraDeFerramentas user={user} />
-              <Route exact path="/tarefas">
-                {user ? <TaskForm /> :
-                  <Redirect to="/" />}
-              </Route>
-              <Route exact path="/gerenciamento">
-                {user ? <GerenciamentoTarefas /> :
-                  <Redirect to="/" />}
-              </Route>
-              <Route exact path="/dados">
-                {user ? <DadosDaTarefa /> :
-                  <Redirect to="/" />}
-              </Route>
-              <Route path="/dados/:id">
-                {user ? <DadosDaTarefa /> :
-                  <Redirect to="/" />}
-              </Route>
-              <Route exact path="/">
-                {!user ? <LoginForm /> :
-                  <Redirect to="/tarefas" />}
-              </Route>
-              <Route exact path="/cadastro">
-                {!user ? <DadosDaPessoa /> :
-                  <Redirect to="/tarefas" />}
-              </Route>
+            <Route exact path="/tarefas">
+              {user ? <TaskForm /> :
+                <Redirect to="/" />}
+            </Route>
+            <Route exact path="/gerenciamento">
+              {user ? <GerenciamentoTarefas /> :
+                <Redirect to="/" />}
+            </Route>
+            <Route exact path="/dados">
+              {user ? <DadosDaTarefa /> :
+                <Redirect to="/" />}
+            </Route>
+            <Route path="/dados/:id">
+              {user ? <DadosDaTarefa /> :
+                <Redirect to="/" />}
+            </Route>
+            <Route exact path="/">
+              {!user ? <LoginForm /> :
+                <Redirect to="/tarefas" />}
+            </Route>
+            <Route exact path="/cadastro">
+              {!user ? <DadosDaPessoa /> :
+                <Redirect to="/tarefas" />}
+            </Route>
+            <Route exact path="/cadastro/:id">
+              {user ? <DadosDaPessoa /> :
+                <Redirect to="/" />}
+            </Route>
           </BrowserRouter>
         </div>
       </div>

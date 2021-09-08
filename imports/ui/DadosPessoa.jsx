@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { MenuItem } from '@material-ui/core';
 import { Mensagem } from '../ui/components/Mensagem'
 import fs from 'fs';
+import { UsersCollection } from '../db/UsersCollection';
 
 
 export const DadosDaPessoa = (props) => {
@@ -20,11 +21,13 @@ export const DadosDaPessoa = (props) => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmpassword, setConfirmPassword] = useState('');
     const [dataNascimento, setDataNascimento] = useState('');
     const [sexo, setSexo] = useState('');
     const [empresa, setEmpresa] = useState('');
     const [foto, setFoto] = useState('');
-    const [text, setText] = useState('');
+    const [title, setTitle] = useState('Texto');
+    const [text, setText] = useState('Texto');
     const params = useParams();
     const [open, setOpen] = useState(false);
 
@@ -39,40 +42,74 @@ export const DadosDaPessoa = (props) => {
 
     useEffect(() => {
         if (params.id) {
-            carregarDados();
+            var uid = params.id;
+            console.log(uid)
+            const editedUser = Meteor.call('users.byUserId', uid, (error, result) => {
+                if (result) {
+                    carregarDados(result)
+                }
+            });
         }
 
     }, []);
 
 
-    function carregarDados() {
-
+    function carregarDados(person) {
+        setNome(person.nome);
+        setEmail(person.email);
+        setDataNascimento(person.dataNascimento)
+        setSexo(person.sexo)
+        setID(person._id)
+        setEmpresa(person.empresa)
+        setFoto(person.foto);
     }
 
-    function mostrarMensagem(text){
+    function mostrarMensagem(alertTitle, text) {
         setText(text);
+        setTitle(alertTitle)
         handleClickOpen();
     }
 
     const handleSubmit = e => {
         e.preventDefault();
 
-        if (!nome) return;
-        if (!email) return;
-        if (!dataNascimento) return;
-        if (!sexo) return;
-        if (!empresa) return;
-        if (!foto) return;
-        var ret = Meteor.call('validar', username, (error, result) => {
-            if (result) {
-                var ret2 = Meteor.call('newUser', nome, email, dataNascimento,
-                    username, password, sexo, empresa, foto, (error2, result2) => {
-                        console.log(result2);
-                    })
-            } else {
-                mostrarMensagem('Já existe um usuário com este nome. Escolha outro por favor.')
-            }
-        })
+        if (!nome) { mostrarMensagem('Alerta', 'O campo "Nome" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!email) { mostrarMensagem('Alerta', 'O campo "E-Mail" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!params.id && !username) { mostrarMensagem('Alerta', 'O campo "Nome de Usuário" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!params.id && !password) { mostrarMensagem('Alerta', 'O campo "Senha" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!params.id && password != confirmpassword) { mostrarMensagem('Alerta', 'Senhas não coincidem'); return; }
+        if (!dataNascimento) { mostrarMensagem('Alerta', 'O campo "Data de Nasciemtno" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!sexo) { mostrarMensagem('Alerta', 'O campo "Genêro" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!empresa) { mostrarMensagem('Alerta', 'O campo "Empresa" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!foto) { mostrarMensagem('Alerta', 'A foto de perfil não foi enviada!'); return; }
+        if (params.id) {
+            var ret = Meteor.call('users.update', id, nome, email, dataNascimento, sexo, empresa, foto, (error, result) => {
+                if (!error) {
+                    mostrarMensagem('Sucesso', 'Você foi cadastrado com sucesso. Lhe enviaremos de volta para a tela de login.');
+                    history.push('/');
+                } else {
+                    mostrarMensagem('Falha ao cadastrar', 'Ocorreu um problema, consulte a assistência técnica.');
+                    console.log(error)
+                }
+            });
+        } else {
+            var ret = Meteor.call('validar', username, (error, result) => {
+                if (result) {
+                    var ret2 = Meteor.call('newUser', nome, email, dataNascimento,
+                        username, password, sexo, empresa, foto, (error2, result2) => {
+                            if (!error2) {
+                                mostrarMensagem('Sucesso', 'Você foi cadastrado com sucesso. Lhe enviaremos de volta para a tela de login.');
+                                history.push('/');
+                            } else {
+                                mostrarMensagem('Falha ao cadastrar', 'Ocorreu um problema, consulte a assistência técnica.');
+                            }
+                        })
+                } else {
+                    mostrarMensagem('Alerta', 'Já existe um usuário com este nome. Escolha outro por favor.');
+                    return;
+                }
+            })
+        }
     };
 
     const voltar = e => {
@@ -102,7 +139,7 @@ export const DadosDaPessoa = (props) => {
             const data = [reader.result][0];
             setFoto(data);
         }.bind(this);
-        console.log(url); // Would see a path?
+        //console.log(url); // Would see a path?
     };
 
     return (
@@ -118,7 +155,7 @@ export const DadosDaPessoa = (props) => {
                                         direction="row"
                                         justifyContent="center"
                                         alignItems="center">
-                                        <h3>Editar Usuário - ID: {params.id}</h3>
+                                        <h3>Editar Dados Pessoais</h3>
                                     </Grid>
                                 </div>
                                 :
@@ -159,34 +196,52 @@ export const DadosDaPessoa = (props) => {
                                         onChange={e => setEmail(e.target.value)}
                                     />
                                 </Grid>
-                                <Grid container
-                                    direction="row"
-                                    justifyContent="center"
-                                    alignItems="center">
+                                {!params.id ?
+                                    <div>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
 
-                                    <TextField id="outlined-basic"
-                                        type="text"
-                                        placeholder="E-Mail"
-                                        label="Usuário"
-                                        value={username}
-                                        className={classes.textfield}
-                                        onChange={e => setUsername(e.target.value)}
-                                    />
-                                </Grid>
-                                <Grid container
-                                    direction="row"
-                                    justifyContent="center"
-                                    alignItems="center">
+                                            <TextField id="outlined-basic"
+                                                type="text"
+                                                placeholder="Usuário"
+                                                label="Usuário"
+                                                value={username}
+                                                className={classes.textfield}
+                                                onChange={e => setUsername(e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
 
-                                    <TextField id="outlined-basic"
-                                        type="password"
-                                        placeholder="E-Mail"
-                                        label="Senha"
-                                        value={password}
-                                        className={classes.textfield}
-                                        onChange={e => setPassword(e.target.value)}
-                                    />
-                                </Grid>
+                                            <TextField id="outlined-basic"
+                                                type="password"
+                                                placeholder="Senha"
+                                                label="Senha"
+                                                value={password}
+                                                className={classes.textfield}
+                                                onChange={e => setPassword(e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
+
+                                            <TextField id="outlined-basic"
+                                                type="password"
+                                                placeholder="Confirmar Senha"
+                                                label="Confirmar Senha"
+                                                value={confirmpassword}
+                                                className={classes.textfield}
+                                                onChange={e => setConfirmPassword(e.target.value)}
+                                            />
+                                        </Grid>
+                                    </div> : ''
+                                }
                                 <Grid container
                                     direction="row"
                                     justifyContent="center"
@@ -275,6 +330,7 @@ export const DadosDaPessoa = (props) => {
                     </Box>
                 </Paper>
             </Box>
+            <Mensagem handleClose={handleClose} text={text} open={open} titulo={title} />
         </div>
 
     );

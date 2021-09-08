@@ -11,6 +11,9 @@ import { Checkbox } from '@material-ui/core';
 import { useRef } from 'react';
 import { MenuItem } from '@material-ui/core';
 import { useTracker } from 'meteor/react-meteor-data';
+import { Mensagem } from '../ui/components/Mensagem'
+import { UsersCollection } from '../db/UsersCollection';
+
 
 
 
@@ -30,8 +33,42 @@ export const DadosDaTarefa = (props) => {
     const [concluida, setConcluida] = useState(false);
     const params = useParams();
     const ro = localStorage.getItem('readonly') === 'true' && params.id ? true : false;
+    const [open, setOpen] = useState(false);
+    const [title, setTitle] = useState('Texto');
+    const [textM, setTextM] = useState('Texto');
+    const [criadaPor, setCriadaPor] = useState('');
+    const user = useTracker(() => Meteor.user());
 
-    const users = Meteor.users.find().fetch();
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    function mostrarMensagem(alertTitle, text) {
+        setTextM(text);
+        setTitle(alertTitle)
+        handleClickOpen();
+    }
+
+    const { users } = useTracker(() => {
+        const noDataAvailable = { users: []};
+        if (!Meteor.user()) {
+          return noDataAvailable;
+        }
+        const handler = Meteor.subscribe('userDatas');
+    
+        if (!handler.ready()) {
+          return { ...noDataAvailable, isLoading: true };
+        }
+    
+        const users = UsersCollection.find().fetch();
+        //console.log(users)
+        return {users};
+      });
+
 
     useEffect(() => {
         const task = TasksCollection.find({
@@ -49,6 +86,7 @@ export const DadosDaTarefa = (props) => {
                 setAndamento(tarefa.andamento)
                 setCadastrada(tarefa.cadastrada)
                 setConcluida(tarefa.concluida)
+                setCriadaPor(tarefa.cadastradaPor)
             }
         }
 
@@ -56,13 +94,27 @@ export const DadosDaTarefa = (props) => {
 
     const handleSubmit = e => {
         e.preventDefault();
-        if (!text) return;
-        if (!descricao) return;
-        if (!data) return;
-        if (!userId) return;
+        if (!text) {mostrarMensagem('Alerta', 'O campo "Nome" não foi informado! Por favor preencha todos os campos'); return;};
+        if (!descricao) {mostrarMensagem('Alerta', 'O campo "Descrição" não foi informado! Por favor preencha todos os campos'); return;}
+        if (!data) {mostrarMensagem('Alerta', 'O campo "Data" não foi informado! Por favor preencha todos os campos'); return;}
+        if (!userId) {mostrarMensagem('Alerta', 'Informe o usuário responsável pela tarefa.'); return;}
         let r = 'teste';
-        if (id === '') r = Meteor.call('tasks.insert', text, descricao, data, userId, visivel, true, andamento, concluida);
-        else r = Meteor.call('tasks.update', id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida);
+        if (id === ''){
+            r = Meteor.call('tasks.insert', text, descricao, data, userId, visivel, true, andamento, concluida, user._id, (error, result) => {
+                if (!error) {
+                    history.push('/gerenciamento')
+                }else{
+                    mostrarMensagem('Alerta','Não foi possível inserir a tarefa')
+                }
+            });
+        }
+        else r = Meteor.call('tasks.update', id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida, (error, result) => {
+            if (!error) {
+                history.push('/gerenciamento')
+            }else{
+                mostrarMensagem('Alerta','Não foi possível inserir a tarefa')
+            }
+        });
         console.log(r);
     };
 
@@ -89,162 +141,39 @@ export const DadosDaTarefa = (props) => {
     }
 
     return (
-        <Box marginY={2} padding={3} >
-            <Grid container
-                direction="row"
-                justifyContent="center"
-                alignItems="center">
-                <Grid item xs={10} lg={8}>
-                    <Paper>
-                        <Box padding={4}>
-                            <Grid container
-                                direction="column">
-                                {params.id ?
-                                    <div>
-                                        <Grid container
-                                            direction="row"
-                                            justifyContent="center"
-                                            alignItems="center">
-                                            {ro ? <h3>Visulizar Tarefa - ID: {params.id}</h3> : <h3>Editar Tarefa - ID: {params.id}</h3>}
-                                        </Grid>
-                                        {ro ? <Grid container
-                                            direction="row"
-                                            justifyContent="center"
-                                            alignItems="center">
-                                            <h4>Edição está travada.</h4>
-                                        </Grid> : ''}
-                                    </div>
-                                    :
-                                    <Grid container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="center">
-                                        <h3>Cadastrar Tarefa</h3>
-                                    </Grid>}
-                            </Grid>
-                            <form className="task-form" onSubmit={handleSubmit}>
+        <div>
+            <Box marginY={2} padding={3} >
+                <Grid container
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="center">
+                    <Grid item xs={10} lg={8}>
+                        <Paper>
+                            <Box padding={4}>
                                 <Grid container
                                     direction="column">
-                                    <Grid container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="center"
-                                        >
-
-                                        <TextField id="outlined-basic"
-                                            type="text"
-                                            placeholder="Nome da Tarefa"
-                                            label="Nome da Tarefa"
-                                            value={text}
-                                            InputProps={{
-                                                readOnly: ro,
-                                            }}
-                                            className={classes.textfield}
-                                            onChange={e => setText(e.target.value)}
-                                        />
-                                    </Grid>
-                                    <Grid container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="center">
-
-                                        <TextField id="outlined-basic"
-                                            type="text"
-                                            placeholder="Descrição da Tarefa"
-                                            label="Descrição da Tarefa"
-                                            value={descricao}
-                                            InputProps={{
-                                                readOnly: ro,
-                                            }}
-                                            className={classes.textfield}
-                                            onChange={e => setDescricao(e.target.value)}
-                                        />
-                                    </Grid>
-                                    <Grid container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="center">
-
-                                        <TextField id="outlined-basic"
-                                            type="date"
-                                            placeholder="Data da Tarefa"
-                                            value={data}
-                                            InputProps={{
-                                                readOnly: ro,
-                                            }}
-                                            className={classes.textfield}
-                                            onChange={e => setData(e.target.value)}
-                                        />
-                                    </Grid>
-                                    <Grid container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="center">
-                                        <TextField
-                                            id="standard-select-currency"
-                                            select
-                                            label="Usuário Responsável"
-                                            value={userId}
-                                            InputProps={{
-                                                readOnly: ro,
-                                            }}
-                                            onChange={e => setuserId(e.target.value)}
-                                            className={classes.textfield}
-                                            helperText="Selecione o usuário."
-                                        >
-                                            {users.map((option) => (
-                                                <MenuItem key={option._id} value={option._id}>
-                                                    {option.name ? option.name : option.username}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-                                    </Grid>
-                                    <Grid container
-                                        direction="row"
-                                        justifyContent="center"
-                                        alignItems="center">
-
-                                        Tarefa Pública?(Visivel para todos)
-                                        <Checkbox
-                                            checked={visivel}
-                                            onChange={e => setVisivel(!visivel)}
-                                            className={classes.checkboxfield}
-                                            inputProps={{ 'aria-label': 'primary checkbox' }, {
-                                                readOnly: ro,
-                                                disabled: ro,
-                                            }}
-                                        />
-                                    </Grid>
-                                    {ro ?
+                                    {params.id ?
                                         <div>
                                             <Grid container
                                                 direction="row"
                                                 justifyContent="center"
                                                 alignItems="center">
-                                                Cadastrada
-                                                <Checkbox
-                                                    checked={cadastrada}
-                                                    onChange={e => handleCheckboxes(e, true, false, false)}
-                                                    inputProps={{ 'aria-label': 'primary checkbox' }}
-                                                />
-                                                Andamento
-                                                <Checkbox
-                                                    checked={andamento}
-                                                    onChange={e => handleCheckboxes(e, false, true, false)}
-                                                    inputProps={{ 'aria-label': 'primary checkbox' }}
-                                                />
-                                                Concluída
-                                                <Checkbox
-                                                    checked={concluida}
-                                                    onChange={e => handleCheckboxes(e, false, false, true)}
-                                                    inputProps={{ 'aria-label': 'primary checkbox' }}
-                                                />
+                                                {ro ? <h3>Visulizar Tarefa - ID: {params.id}</h3> : <h3>Editar Tarefa - ID: {params.id}</h3>}
                                             </Grid>
+                                            {ro ? <Grid container
+                                                direction="row"
+                                                justifyContent="center"
+                                                alignItems="center">
+                                                <h4>Edição está travada.</h4>
+                                            </Grid> : ''}
                                             <Grid container
                                                 direction="row"
                                                 justifyContent="center"
                                                 alignItems="center">
-                                                <Button className={classes.buttonCadastro} onClick={voltar}> Voltar para o Gerenciamento</Button>
+                                                {users.length >0? 
+                                                <h3>Criada por: {users.find(element => element.userId == criadaPor).nome}</h3>:
+                                                ''
+                                            }
                                             </Grid>
                                         </div>
                                         :
@@ -252,25 +181,160 @@ export const DadosDaTarefa = (props) => {
                                             direction="row"
                                             justifyContent="center"
                                             alignItems="center">
-                                            <Button color="primary" className={classes.buttonCadastro} type="submit">
-                                                {params.id ?
-                                                    'Atualizar Tarefa'
-                                                    :
-                                                    'Adicionar Tarefa'
-                                                }
-                                            </Button>
-                                            <Button className={classes.buttonCadastro} onClick={limpar}>Limpar</Button>
-                                            <Button className={classes.buttonCadastro} onClick={voltar}> Voltar</Button>
-                                        </Grid>
-                                    }
-
+                                            <h3>Cadastrar Tarefa</h3>
+                                        </Grid>}
                                 </Grid>
-                            </form>
-                        </Box>
-                    </Paper>
-                </Grid>
-            </Grid>
-        </Box>
+                                
+                                <form className="task-form" onSubmit={handleSubmit}>
+                                    <Grid container
+                                        direction="column">
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                        >
 
+                                            <TextField id="outlined-basic"
+                                                type="text"
+                                                placeholder="Nome da Tarefa"
+                                                label="Nome da Tarefa"
+                                                value={text}
+                                                InputProps={{
+                                                    readOnly: ro,
+                                                }}
+                                                className={classes.textfield}
+                                                onChange={e => setText(e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
+
+                                            <TextField id="outlined-basic"
+                                                type="text"
+                                                placeholder="Descrição da Tarefa"
+                                                label="Descrição da Tarefa"
+                                                value={descricao}
+                                                InputProps={{
+                                                    readOnly: ro,
+                                                }}
+                                                className={classes.textfield}
+                                                onChange={e => setDescricao(e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
+
+                                            <TextField id="outlined-basic"
+                                                type="date"
+                                                placeholder="Data da Tarefa"
+                                                value={data}
+                                                InputProps={{
+                                                    readOnly: ro,
+                                                }}
+                                                className={classes.textfield}
+                                                onChange={e => setData(e.target.value)}
+                                            />
+                                        </Grid>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
+                                            <TextField
+                                                id="standard-select-currency"
+                                                select
+                                                label="Usuário Responsável"
+                                                value={userId}
+                                                InputProps={{
+                                                    readOnly: ro,
+                                                }}
+                                                onChange={e => setuserId(e.target.value)}
+                                                className={classes.textfield}
+                                                helperText="Selecione o usuário."
+                                            >
+                                                {users.map((option) => (
+                                                    <MenuItem key={option.userId} value={option.userId}>
+                                                        {option.nome}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
+                                        </Grid>
+                                        <Grid container
+                                            direction="row"
+                                            justifyContent="center"
+                                            alignItems="center">
+
+                                            Tarefa Pública?(Visivel para todos)
+                                            <Checkbox
+                                                checked={visivel}
+                                                onChange={e => setVisivel(!visivel)}
+                                                className={classes.checkboxfield}
+                                                inputProps={{ 'aria-label': 'primary checkbox' }, {
+                                                    readOnly: ro,
+                                                    disabled: ro,
+                                                }}
+                                            />
+                                        </Grid>
+                                        {ro ?
+                                            <div>
+                                                <Grid container
+                                                    direction="row"
+                                                    justifyContent="center"
+                                                    alignItems="center">
+                                                    Cadastrada
+                                                    <Checkbox
+                                                        checked={cadastrada}
+                                                        onChange={e => handleCheckboxes(e, true, false, false)}
+                                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                                    />
+                                                    Andamento
+                                                    <Checkbox
+                                                        checked={andamento}
+                                                        onChange={e => handleCheckboxes(e, false, true, false)}
+                                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                                    />
+                                                    Concluída
+                                                    <Checkbox
+                                                        checked={concluida}
+                                                        onChange={e => handleCheckboxes(e, false, false, true)}
+                                                        inputProps={{ 'aria-label': 'primary checkbox' }}
+                                                    />
+                                                </Grid>
+                                                <Grid container
+                                                    direction="row"
+                                                    justifyContent="center"
+                                                    alignItems="center">
+                                                    <Button className={classes.buttonCadastro} onClick={voltar}> Voltar para o Gerenciamento</Button>
+                                                </Grid>
+                                            </div>
+                                            :
+                                            <Grid container
+                                                direction="row"
+                                                justifyContent="center"
+                                                alignItems="center">
+                                                <Button color="primary" className={classes.buttonCadastro} type="submit">
+                                                    {params.id ?
+                                                        'Atualizar Tarefa'
+                                                        :
+                                                        'Adicionar Tarefa'
+                                                    }
+                                                </Button>
+                                                <Button className={classes.buttonCadastro} onClick={limpar}>Limpar</Button>
+                                                <Button className={classes.buttonCadastro} onClick={voltar}> Voltar</Button>
+                                            </Grid>
+                                        }
+
+                                    </Grid>
+                                </form>
+                            </Box>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Box>
+            <Mensagem handleClose={handleClose} text={textM} open={open} titulo={title} />
+        </div>
     );
 };

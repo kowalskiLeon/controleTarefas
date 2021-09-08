@@ -5,6 +5,7 @@ import '/imports/api/tasksMethods';
 import '/imports/api/tasksPublications';
 import '/imports/api/FileMethods'
 import '/imports/api/UserMethods'
+import '/imports/api/UserPublications'
 
 // const insertTask = (taskText, user) =>
 //   TasksCollection.insert({

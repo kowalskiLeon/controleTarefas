@@ -16,6 +16,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import { IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import PersonAddRoundedIcon from '@material-ui/icons/PersonAddRounded';
+import { Route } from 'react-router';
 
 
 const BarraDeFerramentas = (props) => {
@@ -44,6 +45,12 @@ const BarraDeFerramentas = (props) => {
             onKeyDown={toggleDrawer(anchor, false)}
         >
             <List>
+            <ListItem>
+                    <Link to={"/cadastro/"+props.user._id}>
+                        <ListItemIcon><InboxIcon /></ListItemIcon>
+                        Editar Dados Pessoais
+                    </Link>
+                </ListItem>
                 <ListItem>
                     <Link to="/tarefas">
                         <ListItemIcon><InboxIcon /></ListItemIcon>
@@ -64,7 +71,7 @@ const BarraDeFerramentas = (props) => {
                 </ListItem>
 
             </List>
-            
+
         </div>
     );
 
@@ -104,7 +111,9 @@ const BarraDeFerramentas = (props) => {
                                 :
                                 <div>
                                     <Box>
-                                       <Link className={classes.signLink} to="cadastro/">Cadastre-se</Link>
+                                        <Route exact path='/'>
+                                            <Link className={classes.signLink} to="cadastro/">Cadastre-se</Link>
+                                        </Route>
                                     </Box>
                                 </div>
                             }
@@ -114,7 +123,7 @@ const BarraDeFerramentas = (props) => {
                 </Toolbar>
             </AppBar>
 
-        </div>
+        </div >
     );
 }
 

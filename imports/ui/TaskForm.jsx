@@ -21,15 +21,13 @@ export const TaskForm = () => {
   const [hideCompleted, setHideCompleted] = useState(false);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [numPaginas, setNumPaginas] = useState(0);
+  const history = useHistory();
 
   const hideCompletedFilter = { isChecked: { $ne: true } };
 
   const userFilter = user ? { userId: user._id } : {};
 
   const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
-
-  const history = useHistory();
-
 
   const { tasks, pendingTasksCount, numItems, isLoading } = useTracker(() => {
     const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
@@ -46,10 +44,10 @@ export const TaskForm = () => {
     console.log(numItems)
 
     const tasks = TasksCollection.find(
-      hideCompleted ? pendingOnlyFilter : userFilter,
+      //hideCompleted ? pendingOnlyFilter : userFilter,
       {
         sort: { createdAt: -1},
-        limit: 4
+        // limit: 4
       }
     ).fetch();
     const pendingTasksCount = TasksCollection.find(pendingOnlyFilter).count();

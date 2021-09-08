@@ -1,5 +1,5 @@
 import { check } from 'meteor/check';
-import { UserCollections } from '/imports/db/UserCollections';
+import { UsersCollection } from '/imports/db/UsersCollection';
 import fs from 'fs';
 
 Meteor.methods({
@@ -17,7 +17,7 @@ Meteor.methods({
             password: password,
         });
 
-        const userData = UserCollections.insert({
+        const userData = UsersCollection.insert({
             nome,
             email,
             dataNascimento,
@@ -28,5 +28,29 @@ Meteor.methods({
         })
         return userData;
     },
+
+    'users.update'(id, nome, email, dataNascimento, sexo, empresa, foto) {
+          if (!this.userId) {
+            throw new Meteor.Error('Not authorized.');
+          }
+        UsersCollection.update(id, {
+          $set: {
+            nome,
+            email,
+            dataNascimento,
+            sexo,
+            empresa,
+            foto,
+          },
+        });
+      },
+
+    'users.byUserId'(id) {
+        if (!this.userId) {
+            throw new Meteor.Error('Not authorized.');
+        }
+        return UsersCollection.findOne({userId:id});
+    },
+
 
 })

@@ -3,7 +3,7 @@ import { TasksCollection } from '/imports/db/TasksCollection';
 import fs from 'fs';
 
 Meteor.methods({
-  'tasks.insert'(text, descricao, data, user, visivel, cadastrada, andamento, concluida) {
+  'tasks.insert'(text, descricao, data, user, visivel, cadastrada, andamento, concluida, cadastradaPor) {
     check(text, String);
     check(descricao, String);
     if (!user) {
@@ -20,6 +20,7 @@ Meteor.methods({
       cadastrada,
       andamento,
       concluida,
+      cadastradaPor,
       createdAt: new Date(),
       userId: user,
     });
@@ -108,4 +109,12 @@ Meteor.methods({
       },
     });
   },
+
+  'tasks.findAll'() {
+    if (!this.userId) {
+      throw new Meteor.Error('Not authorized.');
+    }
+    return TasksCollection.find().fetch();
+  },
+
 });

@@ -28,15 +28,11 @@ export const LoginForm = () => {
     const numItems = TasksCollection.find().count();
     console.log(numItems)
 
-    if (!handler.ready()) {
-      return { ...noDataAvailable, isLoading: true };
-    }
-
     const tasks = TasksCollection.find().fetch();
     const pendingTasksCount = TasksCollection.find(pendingOnlyFilter).count();
     return { tasks, pendingTasksCount, numItems };
   });
-  console.log(tasks)
+
   return (
     <Grid container
       direction="row"
