@@ -6,30 +6,36 @@ import estilos from '../styles/Styles';
 import { TasksCollection } from '/imports/db/TasksCollection';
 import { ListItem, List } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
-import { Box, Paper, Button, Pagination } from '@material-ui/core';
-import { useHistory } from 'react-router';
+import { Paper } from '@material-ui/core';
+import { Box } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
+import { Button } from '@material-ui/core';
 
-const toggleChecked = ({ _id, isChecked }) =>
-  Meteor.call('tasks.setIsChecked', _id, !isChecked);
 
 
-export const TaskForm = () => {
+const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
+
+export const TaskForm = (props) => {
 
   const user = useTracker(() => Meteor.user());
   const classes = estilos();
-
-  const [hideCompleted, setHideCompleted] = useState(false);
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [numPaginas, setNumPaginas] = useState(0);
   const history = useHistory();
-
+  const [hideCompleted, setHideCompleted] = useState(false);
   const hideCompletedFilter = { isChecked: { $ne: true } };
-
   const userFilter = user ? { userId: user._id } : {};
+  const viewTask = ({ _id }) => {
+    history.push('/dados/' + _id);
+    localStorage.setItem('readonly', 'true');
+  };
+
+  const editTask = ({ _id }) => {
+    history.push('/dados/' + _id);
+    localStorage.setItem('readonly', 'false');
+  };
 
   const pendingOnlyFilter = { ...hideCompletedFilter, ...userFilter };
 
-  const { tasks, pendingTasksCount, numItems, isLoading } = useTracker(() => {
+  const { tasks, pendingTasksCount, isLoading } = useTracker(() => {
     const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
     if (!Meteor.user()) {
       return noDataAvailable;
@@ -40,24 +46,14 @@ export const TaskForm = () => {
       return { ...noDataAvailable, isLoading: true };
     }
 
-    const numItems = TasksCollection.find().count();
-    console.log(numItems)
-
     const tasks = TasksCollection.find(
-      //hideCompleted ? pendingOnlyFilter : userFilter,
-      {
-        sort: { createdAt: -1},
-        // limit: 4
-      }
+      {$or: [{visivel: true},{cadastradaPor : user._id},{userId: user._id}]}
     ).fetch();
+    //console.log(tasks)
     const pendingTasksCount = TasksCollection.find(pendingOnlyFilter).count();
 
-    return { tasks, pendingTasksCount, numItems };
+    return { tasks, pendingTasksCount };
   });
-
-  const pendingTasksTitle = `${pendingTasksCount ? ` (${pendingTasksCount})` : ''
-    }`;
-
 
   const [text, setText] = useState('');
 
@@ -71,9 +67,6 @@ export const TaskForm = () => {
     setText('');
   };
 
-  const getUser = (task) => {
-    return Meteor.users.findOne(task.userId)
-  }
 
   const cadastrarTarefa = e => {
     e.preventDefault();
@@ -92,16 +85,21 @@ export const TaskForm = () => {
                 <Grid item xs={5} lg={5}>
                   <span>Nome</span>
                 </Grid>
-                <Grid item xs={5} lg={5}>
+                <Grid item xs={3} lg={3}>
                   <span>Usuário</span>
+                </Grid>
+                <Grid item xs={3} lg={3}>
+                  <span>Criado Por</span>
                 </Grid>
               </ListItem>
               {tasks.map(task => (
                 <Task
                   key={task._id}
                   task={task}
-                  onCheckboxClick={toggleChecked}
-                  user={getUser(task)}
+                  user={user}
+                  onViewClick={viewTask}
+                  onEditClick={editTask}
+                  onDeleteClick={deleteTask}
                   showButtons={false}
                 />
               ))}

@@ -6,7 +6,7 @@ Meteor.methods({
           if (err) {
               throw (new Meteor.Error(500, 'Failed to save file.', err));
           } else {
-              console.log('Filesaved');
+              //console.log('Filesaved');
           }
       });
   }

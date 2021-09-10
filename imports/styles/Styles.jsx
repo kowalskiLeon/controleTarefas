@@ -27,7 +27,7 @@ const estilos = makeStyles({
     paddingBottom: '10px',
     borderRadius: '12px',
     border: '2px solid transparent',
-    marginRight:'25px',
+    marginRight: '25px',
     '&:hover': {
       color: '#a8f2da',
       transitionDuration: '0.2s',
@@ -39,8 +39,8 @@ const estilos = makeStyles({
     borderRadius: '50%',
     color: 'white',
     marginRight: '8px',
-    width:'48px',
-    height:'48px',
+    width: '48px',
+    height: '48px',
   },
   delete: {
     backgroundColor: '#ff8989 !important',
@@ -71,11 +71,11 @@ const estilos = makeStyles({
   },
   textfield: {
     marginTop: '25px',
-    width:'90%'
+    width: '90%'
   },
   checkboxfield: {
     marginTop: '16px',
-    width:'80%'
+    width: '80%'
   },
   buttonCadastro: {
     marginTop: '48px',
@@ -101,11 +101,20 @@ const estilos = makeStyles({
   profile: {
     border: '1px solid #ddd',
     borderRadius: '50%',
-    height:'110px',
-    width:'110px',
+    height: '110px',
+    width: '110px',
     padding: '5px',
-    marginTop:'24px',
-    objectFit:'cover'
+    marginTop: '24px',
+    objectFit: 'cover'
+  },
+  profileSnippet: {
+    border: '1px solid #ddd',
+    borderRadius: '50%',
+    height: '48px',
+    width: '48px',
+    padding: '5px',
+    marginTop: '16px',
+    objectFit: 'cover'
   },
   loginButton: {
     backgroundColor: '#bdf0da',
@@ -120,6 +129,49 @@ const estilos = makeStyles({
       transitionDuration: '0.2s',
       backgroundColor: '#424947',
     }
+  },
+  drawerLink: {
+    backgroundColor: '#bdf0da',
+    color: 'white',
+    textDecoration: 'unset',
+    transitionDuration: '0.2s',
+    backgroundColor: '#638d80',
+    padding: '12px',
+    borderRadius: '12px',
+    border: '2px solid transparent',
+    width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    '&:hover': {
+      color: '#a8f2da',
+      transitionDuration: '0.2s',
+      backgroundColor: '#424947',
+    }
+  },
+  drawerBackground: {
+    backgroundColor: '#565656',
+    height:'100%'
+  },
+  drawerBotao: {
+    backgroundColor: '#bdf0da',
+    color: 'white',
+    transitionDuration: '0.2s',
+    backgroundColor: '#638d80',
+    paddingTop: '10px',
+    paddingBottom: '10px',
+    borderRadius: '12px',
+    margin:'auto',
+    justifyContent:'center',
+    border: '2px solid transparent',
+    marginRight: '25px',
+    '&:hover': {
+      color: '#a8f2da',
+      transitionDuration: '0.2s',
+      backgroundColor: '#424947',
+    }
+  },
+  drawerText: {
+    fontSize:'1.2em'
   }
 
 

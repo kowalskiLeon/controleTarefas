@@ -30,7 +30,7 @@ Meteor.methods({
 
   'tasks.update'(id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida) {
     check(text, String);
-    console.log(id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida);
+    //console.log(id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida);
     if (!userId) {
       userId == this.userId;
       if (!userId) {
@@ -115,6 +115,29 @@ Meteor.methods({
       throw new Meteor.Error('Not authorized.');
     }
     return TasksCollection.find().fetch();
+  },
+
+  'tasks.findAllWithFilter'(id) {
+    if (!this.userId) {
+      throw new Meteor.Error('Not authorized.');
+    }
+    return TasksCollection.find({
+      visivel: true || false && id == cadastradaPor || false && id == userId
+    }).fetch();
+  },
+
+  'tasks.getCount'() {
+    return TasksCollection.find().count();
+  },
+
+  'tasks.getCountWithFilter'(cadastrada, andamento, concluida) {
+    return TasksCollection.find(
+      {
+        cadastrada: cadastrada,
+        andamento: andamento,
+        concluida: concluida
+      }
+    ).count();
   },
 
 });

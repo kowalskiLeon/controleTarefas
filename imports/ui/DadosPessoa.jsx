@@ -43,8 +43,8 @@ export const DadosDaPessoa = (props) => {
     useEffect(() => {
         if (params.id) {
             var uid = params.id;
-            console.log(uid)
-            const editedUser = Meteor.call('users.byUserId', uid, (error, result) => {
+            //console.log(uid)
+            Meteor.call('users.byUserId', uid, (error, result) => {
                 if (result) {
                     carregarDados(result)
                 }

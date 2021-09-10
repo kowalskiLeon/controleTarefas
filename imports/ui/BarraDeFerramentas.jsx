@@ -2,30 +2,50 @@ import { Meteor } from 'meteor/meteor';
 import React, { useState } from 'react';
 import clsx from 'clsx';
 import estilos from '../styles/Styles';
-import { AppBar, Toolbar, Grid, Box, Button } from '@material-ui/core';
-import { useTracker } from 'meteor/react-meteor-data';
+import { AppBar, Toolbar, Grid, Box, Button, Card } from '@material-ui/core';
 import { Link, withRouter } from 'react-router-dom';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import { IconButton } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-import PersonAddRoundedIcon from '@material-ui/icons/PersonAddRounded';
 import { Route } from 'react-router';
+import { useEffect } from 'react';
+import PeopleIcon from '@material-ui/icons/People';
+import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
+import ListAltIcon from '@material-ui/icons/ListAlt';
+import NoteAddIcon from '@material-ui/icons/NoteAdd';
+
 
 
 const BarraDeFerramentas = (props) => {
     const classes = estilos();
+    const imgPath = '/imgs/task.png';
+    const [nome, setNome] = useState('');
+    const [email, setEmail] = useState('')
+    const [foto, setFoto] = useState('')
+
 
     const logout = () => Meteor.logout();
     const [state, setState] = React.useState({
         right: false,
     });
+
+    useEffect(() => {
+        if (props.user) {
+            const editedUser = Meteor.call('users.byUserId', props.user._id, (error, result) => {
+                if (result) {
+                    setNome(result.nome);
+                    setEmail(result.email);
+                    setFoto(result.foto);
+                }
+            });
+        }
+    });
+
+
 
     const toggleDrawer = (anchor, open) => (event) => {
         if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -39,34 +59,83 @@ const BarraDeFerramentas = (props) => {
         <div
             className={clsx(classes.list, {
                 [classes.fullList]: anchor === 'top' || anchor === 'bottom',
-            })}
+            }), classes.drawerBackground}
             role="presentation"
             onClick={toggleDrawer(anchor, false)}
             onKeyDown={toggleDrawer(anchor, false)}
         >
             <List>
-            <ListItem>
-                    <Link to={"/cadastro/"+props.user._id}>
-                        <ListItemIcon><InboxIcon /></ListItemIcon>
-                        Editar Dados Pessoais
+                <ListItem>
+                    <Grid container
+                        direction="column"
+                        justifyContent="center"
+                        alignItems="center">
+                        <Button className={classes.drawerBotao} onClick={toggleDrawer(anchor, false)}>
+                            Fechar
+                        </Button>
+                    </Grid>
+                    <Grid container
+                        direction="column"
+                        justifyContent="center"
+                        alignItems="center">
+                        <Button className={classes.drawerBotao} onClick={logout}>
+                            Sair 🚪
+                        </Button>
+                    </Grid>
+                </ListItem>
+                <ListItem>
+                    <Box mx="auto" width={1} padding={2}>
+                        <Card>
+                            <Box width={1} py={2}>
+                                <Grid container
+                                    direction="column"
+                                    justifyContent="center"
+                                    alignItems="center">
+                                    <Grid container
+                                        direction="row"
+                                        justifyContent="center"
+                                        alignItems="center">
+                                        <img src={foto ? foto : imgPath} className={classes.profileSnippet} />
+                                    </Grid>
+                                    <Grid container
+                                        direction="row"
+                                        justifyContent="center"
+                                        alignItems="center">
+                                        <h3> {nome} </h3>
+                                    </Grid>
+                                    <Grid container
+                                        direction="row"
+                                        justifyContent="center"
+                                        alignItems="center">
+                                        <span> {email} </span>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </Card>
+                    </Box>
+                </ListItem>
+                <ListItem>
+                    <Link to={"/cadastro/" + props.user._id} className={classes.drawerLink}>
+                        <ListItemIcon><PeopleIcon /></ListItemIcon>
+                        <span className={classes.drawerText}>Editar Dados Pessoais</span>
                     </Link>
                 </ListItem>
                 <ListItem>
-                    <Link to="/tarefas">
-                        <ListItemIcon><InboxIcon /></ListItemIcon>
-                        Lista de Tarefas
+                    <Link to="/tarefas" className={classes.drawerLink}>
+                        <ListItemIcon><FormatListNumberedIcon /></ListItemIcon>
+                        <span className={classes.drawerText}>Lista de Tarefas</span>
                     </Link>
                 </ListItem>
-                <Divider />
                 <ListItem>
-                    <Link to="/gerenciamento">
-                        <ListItemIcon><InboxIcon /></ListItemIcon>
-                        Gerenciamento
+                    <Link to="/gerenciamento" className={classes.drawerLink}>
+                        <ListItemIcon><ListAltIcon /></ListItemIcon>
+                        <span className={classes.drawerText}>Gerenciamento</span>
                     </Link>
-                </ListItem><ListItem>
-                    <Link to="/dados">
-                        <ListItemIcon><InboxIcon /></ListItemIcon>
-                        Adicionar Tarefa
+                </ListItem>
+                <ListItem>
+                    <Link to="/dados" className={classes.drawerLink}>
+                        <ListItemIcon><NoteAddIcon /></ListItemIcon>
+                        <span className={classes.drawerText}>Adicionar Tarefa</span>
                     </Link>
                 </ListItem>
 

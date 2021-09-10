@@ -115,7 +115,7 @@ export const DadosDaTarefa = (props) => {
                 mostrarMensagem('Alerta','Não foi possível inserir a tarefa')
             }
         });
-        console.log(r);
+        //console.log(r);
     };
 
     const handleCheckboxes = (e, _cadastrada, _andamento, _concluida) => {

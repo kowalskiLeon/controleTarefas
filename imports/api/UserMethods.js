@@ -5,7 +5,7 @@ import fs from 'fs';
 Meteor.methods({
     'validar'(username) {
         var ret = !Accounts.findUserByUsername(username);
-        console.log(ret)
+        //console.log(ret)
         return ret
     },
 

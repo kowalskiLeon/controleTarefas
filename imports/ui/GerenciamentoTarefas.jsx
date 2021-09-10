@@ -12,6 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 
 
+
 const deleteTask = ({ _id }) => Meteor.call('tasks.remove', _id);
 
 export const GerenciamentoTarefas = (props) => {
@@ -45,9 +46,11 @@ export const GerenciamentoTarefas = (props) => {
       return { ...noDataAvailable, isLoading: true };
     }
 
+
     const tasks = TasksCollection.find(
+      {$or: [{visivel: true},{cadastradaPor : user._id},{userId: user._id}]}
     ).fetch();
-    console.log(tasks)
+    //console.log(tasks)
     const pendingTasksCount = TasksCollection.find(pendingOnlyFilter).count();
 
     return { tasks, pendingTasksCount };
@@ -65,13 +68,6 @@ export const GerenciamentoTarefas = (props) => {
     setText('');
   };
 
-  const getUser = (task) => {
-    return Meteor.users.findOne(task.userId)
-  }
-
-  const getCreator = (task) => {
-    return Meteor.users.findOne(task.cadastradaPor)
-  }
 
   const cadastrarTarefa = e => {
     e.preventDefault();
@@ -104,11 +100,10 @@ export const GerenciamentoTarefas = (props) => {
                 <Task
                   key={task._id}
                   task={task}
+                  user={user}
                   onViewClick={viewTask}
                   onEditClick={editTask}
                   onDeleteClick={deleteTask}
-                  user={getUser(task)}
-                  creator ={getCreator(task)}
                   showButtons={true}
                 />
               ))}
