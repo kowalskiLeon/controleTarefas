@@ -172,6 +172,35 @@ const estilos = makeStyles({
   },
   drawerText: {
     fontSize:'1.2em'
+  },
+  filterText:{
+    width:'80%'
+  },
+  taskBackground:{
+    backgroundColor:'#dbf2e6',
+    borderRadius:'16px',
+    marginTop:'12px',
+    marginBottom:'6px',
+    paddingLeft:'6px',
+    paddingRight:'6px'
+  },
+  rowMargin:{
+    marginLeft: '16px',
+    marginRight: '16px'
+  },
+  headerMargin:{
+    marginTop: '2px',
+    marginBottom: '2px',
+  },
+  dataMargin:{
+    marginLeft:'24px',
+    marginTop: '8px',
+    marginBottom: '2px',
+  }
+  ,
+  searchBarMagin:{
+    marginTop: '16px',
+    marginBottom: '16px',
   }
 
 

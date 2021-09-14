@@ -229,10 +229,11 @@ export const DadosDaTarefa = (props) => {
                                             alignItems="center">
 
                                             <TextField id="outlined-basic"
-                                                type="date"
+                                                type="datetime-local"
                                                 placeholder="Data da Tarefa"
                                                 value={data}
                                                 InputProps={{
+                                                    shrink: true,
                                                     readOnly: ro,
                                                 }}
                                                 className={classes.textfield}

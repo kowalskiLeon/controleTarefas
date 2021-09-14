@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Task } from './Task';
 import { useTracker } from 'meteor/react-meteor-data';
 import estilos from '../styles/Styles';
@@ -12,6 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { Button } from '@material-ui/core';
 import { MenuItem } from '@material-ui/core';
 import { Checkbox } from '@material-ui/core';
+import Pagination from '@material-ui/lab/Pagination';
 
 
 
@@ -24,8 +25,14 @@ export const TaskForm = (props) => {
   const history = useHistory();
   const [taskText, setTaskText] = useState('');
   const [hideCompleted, setHideCompleted] = useState(false);
+  const [page, setPage] = React.useState(1);
+  const [numPages, setNumPages] = React.useState(1)
+  const maxPerPage = 4;
+  const handleChange = (event, value) => {
+    setPage(value);
+  };
   const visibilityFilter = { $or: [{ visivel: true }, { cadastradaPor: user._id }, { userId: user._id }] };
-  const hideCompletedFilter = hideCompleted ? { cadastrada: { $ne: true } } : {};
+  const hideCompletedFilter = hideCompleted ? { concluida: false } : {};
   //const userFilter = user ? { userId: user._id } : {};
   const taskTFilter = taskText ? { text: { '$regex': taskText } } : {};
   const viewTask = ({ _id }) => {
@@ -40,7 +47,7 @@ export const TaskForm = (props) => {
 
   const filter = { ...hideCompletedFilter, ...taskTFilter, ...visibilityFilter };
 
-  const { tasks, pendingTasksCount, isLoading } = useTracker(() => {
+  const { tasks, pendingTasksCount, numTasks, isLoading } = useTracker(() => {
     const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
     if (!Meteor.user()) {
       return noDataAvailable;
@@ -49,11 +56,22 @@ export const TaskForm = (props) => {
     if (!handler.ready()) {
       return { ...noDataAvailable, isLoading: true };
     }
-
-    const tasks = TasksCollection.find(filter).fetch();
+    const pulo = (page - 1) * maxPerPage
+    const tasks = TasksCollection.find(filter,
+      {
+        limit: maxPerPage,
+        skip: pulo
+      }).fetch();
+    const numTasks = TasksCollection.find(filter).count();
     const pendingTasksCount = TasksCollection.find(filter).count();
 
-    return { tasks, pendingTasksCount };
+    return { tasks, pendingTasksCount, numTasks };
+  });
+
+  useEffect(() => {
+    if (numTasks) {
+      setNumPages(Math.ceil(numTasks / 4));
+    }
   });
 
   const cadastrarTarefa = e => {
@@ -61,53 +79,57 @@ export const TaskForm = (props) => {
     history.push('/dados');
   }
 
+  const changeHidden = e => {
+    e.preventDefault();
+    setHideCompleted(!hideCompleted);
+    setPage(1);
+  }
+
   return (
     <div>
       <Box marginY={2} mx="auto" padding={3} >
         <Paper>
           <Grid container direction='row'>
-            <Grid item xs={6} lg={6}>
-              <Box width={1} my="auto" marginX={3}>
+            <Grid item xs={12} lg={6} className={classes.searchBarMagin}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+              >
                 <TextField id="outlined-basic"
                   type="text"
                   placeholder="Nome da Tarefa"
                   label="Nome da Tarefa"
+                  className={classes.filterText}
                   value={taskText}
                   onChange={e => setTaskText(e.target.value)}
                 />
-              </Box>
+              </Grid>
             </Grid>
-            <Grid item xs={6} lg={6}>
-              <Box width={1} mt={2} marginX={3}>
-                Cadastrada
+            <Grid item xs={12} lg={6} className={classes.searchBarMagin}>
+              <Grid
+                container
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+              >
+                Mostrar Apenas não concluidas?
                 <Checkbox
                   checked={hideCompleted}
-                  onChange={e => setHideCompleted(!hideCompleted)}
+                  onChange={e => changeHidden(e)}
                   inputProps={{ 'aria-label': 'primary checkbox' }}
                 />
-              </Box>
+              </Grid>
             </Grid>
           </Grid>
         </Paper>
       </Box>
       <Box mx="auto" padding={3} >
         <Paper>
-          <List component="nav" aria-label="main mailbox folders" className="tasks">
+          <List component="nav" aria-label="main mailbox folders" className={classes.rowMargin}>
             {tasks.length > 0 ?
               <div>
-                <ListItem>
-                  <Grid item xs={1} lg={1}>
-                  </Grid>
-                  <Grid item xs={5} lg={5}>
-                    <span>Nome</span>
-                  </Grid>
-                  <Grid item xs={3} lg={3}>
-                    <span>Usuário</span>
-                  </Grid>
-                  <Grid item xs={3} lg={3}>
-                    <span>Criado Por</span>
-                  </Grid>
-                </ListItem>
                 {tasks.map(task => (
                   <Task
                     key={task._id}
@@ -118,7 +140,18 @@ export const TaskForm = (props) => {
                     onDeleteClick={deleteTask}
                     showButtons={false}
                   />
+
                 ))}
+                <Grid
+                  container
+                  direction="row"
+                  justifyContent="center"
+                  alignItems="center"
+                >
+                  <Box marginY={2}>
+                    <Pagination count={numPages} page={page} onChange={handleChange} />
+                  </Box>
+                </Grid>
               </div>
               :
               <div>
@@ -127,6 +160,9 @@ export const TaskForm = (props) => {
                     <Box display='flex' marginBottom={3}>
                       <Grid container direction='column' justifyContent='center'>
                         <Grid container direction='row' justifyContent='center'><h2>Sem tarefas cadastradas.</h2></Grid>
+                        <Grid container direction='row' justifyContent='center'>
+                          <h4>Verifique se já existem tarefas no sistema ou se você digitou os termos de busca corretamente.</h4>
+                        </Grid>
                         <Grid container direction='row' justifyContent='center'>
                           <Button className={classes.buttonCadastro} onClick={cadastrarTarefa}>
                             Cadastrar uma tarefa
