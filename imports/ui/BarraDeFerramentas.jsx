@@ -17,6 +17,8 @@ import PeopleIcon from '@material-ui/icons/People';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import NoteAddIcon from '@material-ui/icons/NoteAdd';
+import { UsersCollection } from '../db/UsersCollection';
+import { useTracker } from 'meteor/react-meteor-data';
 
 
 
@@ -33,17 +35,44 @@ const BarraDeFerramentas = (props) => {
         right: false,
     });
 
-    useEffect(() => {
-        if (props.user) {
-            const editedUser = Meteor.call('users.byUserId', props.user._id, (error, result) => {
-                if (result) {
-                    setNome(result.nome);
-                    setEmail(result.email);
-                    setFoto(result.foto);
-                }
-            });
+    const { userData } = useTracker(() => {
+        const noDataAvailable = { userData: undefined};
+        if (!Meteor.user()) {
+          return noDataAvailable;
         }
-    });
+        //console.log(props.user._id)
+        const handler = Meteor.subscribe('findUserById', props.user._id);
+        //console.log(handler)
+        if (!handler.ready()) {
+          return { ...noDataAvailable, isLoading: true };
+        }
+        const userData = UsersCollection.find().fetch()[0];
+        //console.log(userData);
+        return { userData };
+      });
+
+    // useTracker(() => {
+    //     if (props) {
+    //         if (props.user) {
+    //             console.log(props.user)
+    //             const handler = Meteor.subscribe('findUserById', props.user._id);
+    //             console.log(handler);
+    //             const editedUser = UsersCollection.find().fetch();
+    //             console.log(editedUser);
+    //             setNome(editedUser.nome);
+    //             setEmail(editedUser.email)
+    //             setFoto(editedUser.foto);
+
+    //             // const editedUser = Meteor.call('users.byUserId', props.user._id, (error, result) => {
+    //             //     if (result) {
+    //             //         setNome(result.nome);
+    //             //         setEmail(result.email);
+    //             //         setFoto(result.foto);
+    //             //     }
+    //             // });
+    //         }
+    //     }
+    // });
 
 
 
@@ -95,19 +124,19 @@ const BarraDeFerramentas = (props) => {
                                         direction="row"
                                         justifyContent="center"
                                         alignItems="center">
-                                        <img src={foto ? foto : imgPath} className={classes.profileSnippet} />
+                                        {userData?<img src={userData.foto ? userData.foto : imgPath} className={classes.profileSnippet} />:''}
                                     </Grid>
                                     <Grid container
                                         direction="row"
                                         justifyContent="center"
                                         alignItems="center">
-                                        <h3> {nome} </h3>
+                                         {userData?<h3> {userData.nome} </h3>:''}
                                     </Grid>
                                     <Grid container
                                         direction="row"
                                         justifyContent="center"
                                         alignItems="center">
-                                        <span> {email} </span>
+                                        {userData?<span> {userData.email} </span>:''}
                                     </Grid>
                                 </Grid>
                             </Box>
