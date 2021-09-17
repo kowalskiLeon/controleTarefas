@@ -82,6 +82,7 @@ export const DadosDaPessoa = (props) => {
         if (!sexo) { mostrarMensagem('Alerta', 'O campo "Genêro" não foi informado! Por favor preencha todos os campos'); return; }
         if (!empresa) { mostrarMensagem('Alerta', 'O campo "Empresa" não foi informado! Por favor preencha todos os campos'); return; }
         if (!foto) { mostrarMensagem('Alerta', 'A foto de perfil não foi enviada!'); return; }
+        if (!validateEmail(email)) { mostrarMensagem('Alerta', 'Esse e-mail não é válido.'); return; }
         if (params.id) {
             var ret = Meteor.call('users.update', id, nome, email, dataNascimento, sexo, empresa, foto, (error, result) => {
                 if (!error) {
@@ -111,6 +112,11 @@ export const DadosDaPessoa = (props) => {
             })
         }
     };
+
+    function validateEmail(email) {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
 
     const voltar = e => {
         e.preventDefault();

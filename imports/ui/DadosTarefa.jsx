@@ -37,6 +37,7 @@ export const DadosDaTarefa = (props) => {
     const [title, setTitle] = useState('Texto');
     const [textM, setTextM] = useState('Texto');
     const [criadaPor, setCriadaPor] = useState('');
+    const [criador, setCriador] = useState('');
     const user = useTracker(() => Meteor.user());
 
     const handleClickOpen = () => {
@@ -54,26 +55,32 @@ export const DadosDaTarefa = (props) => {
     }
 
     const { users } = useTracker(() => {
-        const noDataAvailable = { users: []};
+        const noDataAvailable = { users: [] };
         if (!Meteor.user()) {
-          return noDataAvailable;
+            return noDataAvailable;
         }
         const handler = Meteor.subscribe('userDatas');
-    
+
         if (!handler.ready()) {
-          return { ...noDataAvailable, isLoading: true };
+            return { ...noDataAvailable, isLoading: true };
         }
-    
+
         const users = UsersCollection.find().fetch();
         //console.log(users)
-        return {users};
-      });
+        return { users };
+    });
 
 
-    useEffect(() => {
-        const task = TasksCollection.find({
-            _id: params.id
-        }).fetch();
+    useTracker(() => {
+        //console.log(params.id)
+        const handler = Meteor.subscribe('findById', params.id);
+        //console.log(handler)
+        if (!handler.ready()) {
+            return;
+        }
+        const task = TasksCollection.find().fetch();
+        //console.log(task);
+
         if (task) {
             if (task[0]) {
                 const tarefa = task[0];
@@ -87,6 +94,10 @@ export const DadosDaTarefa = (props) => {
                 setCadastrada(tarefa.cadastrada)
                 setConcluida(tarefa.concluida)
                 setCriadaPor(tarefa.cadastradaPor)
+                const c = UsersCollection.findOne({userId:tarefa.cadastradaPor});
+                //console.log(c);
+                setCriador(c.nome);
+                //console.log(criador)
             }
         }
 
@@ -94,25 +105,25 @@ export const DadosDaTarefa = (props) => {
 
     const handleSubmit = e => {
         e.preventDefault();
-        if (!text) {mostrarMensagem('Alerta', 'O campo "Nome" não foi informado! Por favor preencha todos os campos'); return;};
-        if (!descricao) {mostrarMensagem('Alerta', 'O campo "Descrição" não foi informado! Por favor preencha todos os campos'); return;}
-        if (!data) {mostrarMensagem('Alerta', 'O campo "Data" não foi informado! Por favor preencha todos os campos'); return;}
-        if (!userId) {mostrarMensagem('Alerta', 'Informe o usuário responsável pela tarefa.'); return;}
+        if (!text) { mostrarMensagem('Alerta', 'O campo "Nome" não foi informado! Por favor preencha todos os campos'); return; };
+        if (!descricao) { mostrarMensagem('Alerta', 'O campo "Descrição" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!data) { mostrarMensagem('Alerta', 'O campo "Data" não foi informado! Por favor preencha todos os campos'); return; }
+        if (!userId) { mostrarMensagem('Alerta', 'Informe o usuário responsável pela tarefa.'); return; }
         let r = 'teste';
-        if (id === ''){
+        if (id === '') {
             r = Meteor.call('tasks.insert', text, descricao, data, userId, visivel, true, andamento, concluida, user._id, (error, result) => {
                 if (!error) {
                     history.push('/gerenciamento')
-                }else{
-                    mostrarMensagem('Alerta','Não foi possível inserir a tarefa')
+                } else {
+                    mostrarMensagem('Alerta', 'Não foi possível inserir a tarefa')
                 }
             });
         }
         else r = Meteor.call('tasks.update', id, text, descricao, data, userId, visivel, cadastrada, andamento, concluida, (error, result) => {
             if (!error) {
                 history.push('/gerenciamento')
-            }else{
-                mostrarMensagem('Alerta','Não foi possível inserir a tarefa')
+            } else {
+                mostrarMensagem('Alerta', 'Não foi possível inserir a tarefa')
             }
         });
         //console.log(r);
@@ -170,11 +181,11 @@ export const DadosDaTarefa = (props) => {
                                                 direction="row"
                                                 justifyContent="center"
                                                 alignItems="center">
-                                                {users.length >0? 
-                                                <h3>Criada por: {users.find(element => element.userId == criadaPor).nome}</h3>:
-                                                ''
-                                            }
-                                            </Grid>
+                                                {criador != '' ?
+                                                    <h3>Criada por: {criador}</h3> :
+                                                    ''
+                                                }
+                                            </Grid> 
                                         </div>
                                         :
                                         <Grid container
@@ -184,7 +195,7 @@ export const DadosDaTarefa = (props) => {
                                             <h3>Cadastrar Tarefa</h3>
                                         </Grid>}
                                 </Grid>
-                                
+
                                 <form className="task-form" onSubmit={handleSubmit}>
                                     <Grid container
                                         direction="column">

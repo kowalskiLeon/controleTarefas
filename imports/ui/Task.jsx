@@ -49,6 +49,15 @@ export const Task = ({ task, onCheckboxClick, onViewClick, onEditClick, onDelete
     return true;
   }
 
+  function isRelacionado() {
+    if (task) {
+      if ((user._id === task.cadastradaPor) || (user._id === task.userId) ){
+        return false
+      }
+    }
+    return true;
+  }
+
   function dataConvertida(data) {
     var tempo = data.split('T')[1];
     var dia = data.split('T')[0].split('-')[2];
@@ -89,7 +98,7 @@ export const Task = ({ task, onCheckboxClick, onViewClick, onEditClick, onDelete
           </Grid>
           <Grid item xs={showButtons ? 12 : false} lg={showButtons ? 3 : false}>
             {showButtons && idResponsavel != '' && idCriador != '' ? <div>
-              <Button className={classes.vizualize} onClick={() => onViewClick(task)}><VisibilityIcon /></Button>
+              <Button disabled={isRelacionado()} className={classes.vizualize} onClick={() => onViewClick(task)}><VisibilityIcon /></Button>
               <Button disabled={isSameUser()} className={classes.edit} onClick={() => onEditClick(task)}><EditIcon /></Button>
               <Button disabled={isSameUser()} className={classes.delete} onClick={() => onDeleteClick(task)}><DeleteIcon /></Button>
             </div> : ''}

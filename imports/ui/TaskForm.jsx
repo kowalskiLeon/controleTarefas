@@ -52,16 +52,13 @@ export const TaskForm = (props) => {
     if (!Meteor.user()) {
       return noDataAvailable;
     }
-    const handler = Meteor.subscribe('tasks');
+    const pulo = (page - 1) * maxPerPage
+    const handler = Meteor.subscribe('filterTasks', filter, maxPerPage, pulo);
+    //console.log(handler)
     if (!handler.ready()) {
       return { ...noDataAvailable, isLoading: true };
     }
-    const pulo = (page - 1) * maxPerPage
-    const tasks = TasksCollection.find(filter,
-      {
-        limit: maxPerPage,
-        skip: pulo
-      }).fetch();
+    const tasks = TasksCollection.find().fetch();
     const numTasks = TasksCollection.find(filter).count();
     const pendingTasksCount = TasksCollection.find(filter).count();
 
