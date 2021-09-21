@@ -136,7 +136,14 @@ export const GerenciamentoTarefas = (props) => {
       </Box>
       <Box marginY={2} marginX={5} padding={3} >
         <Paper>
-          <List component="nav" aria-label="main mailbox folders"  className={classes.rowMargin}>
+          <List component="nav" aria-label="main mailbox folders" className={classes.rowMargin}>
+            <Box mb={3}>
+              <Grid container direction='row' justifyContent='center'>
+                <Button className={classes.buttonCadastro} onClick={cadastrarTarefa}>
+                  Cadastrar uma tarefa
+                </Button>
+              </Grid>
+            </Box>
             {tasks.length > 0 ?
               <div>
                 {tasks.map(task => (
@@ -170,7 +177,7 @@ export const GerenciamentoTarefas = (props) => {
                         <Grid container direction='row' justifyContent='center'><h2>Sem tarefas cadastradas.</h2></Grid>
                         <Grid container direction='row' justifyContent='center'>
                           <h4>Verifique se já existem tarefas no sistema ou se você digitou os termos de busca corretamente.</h4>
-                          </Grid>
+                        </Grid>
                         <Grid container direction='row' justifyContent='center'>
                           <Button className={classes.buttonCadastro} onClick={cadastrarTarefa}>
                             Cadastrar uma tarefa

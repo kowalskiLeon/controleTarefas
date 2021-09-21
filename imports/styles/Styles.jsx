@@ -81,6 +81,13 @@ const estilos = makeStyles({
     marginTop: '48px',
     marginLeft: '8px',
     marginRight: '8px',
+    backgroundColor: '#73a391',
+    color:'white',
+    transitionDuration: '0.2s',
+    '&:hover': {
+      transitionDuration: '0.2s',
+      backgroundColor: '#9ed0b8',
+    }
   },
   signLink: {
     color: 'white',

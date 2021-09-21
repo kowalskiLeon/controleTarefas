@@ -145,7 +145,6 @@ export const DadosDaPessoa = (props) => {
             const data = [reader.result][0];
             setFoto(data);
         }.bind(this);
-        //console.log(url); // Would see a path?
     };
 
     return (
