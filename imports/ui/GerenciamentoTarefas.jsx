@@ -54,22 +54,21 @@ export const GerenciamentoTarefas = (props) => {
 
   const filter = { ...hideCompletedFilter, ...taskTFilter, ...visibilityFilter };
 
-  const { tasks, pendingTasksCount, numTasks, isLoading } = useTracker(() => {
-    const noDataAvailable = { tasks: [], pendingTasksCount: 0 };
+  const { tasks, numTasks, isLoading } = useTracker(() => {
+    const noDataAvailable = { tasks: [] };
     if (!Meteor.user()) {
       return noDataAvailable;
     }
-    const pulo = (page - 1) * maxPerPage
-    const handler = Meteor.subscribe('filterTasks', filter, maxPerPage, pulo);
-    //console.log(handler)
-    if (!handler.ready()) {
-      return { ...noDataAvailable, isLoading: true };
-    }
-    const tasks = TasksCollection.find().fetch();
-    const numTasks = TasksCollection.find(filter).count();
-    const pendingTasksCount = TasksCollection.find(filter).count();
 
-    return { tasks, pendingTasksCount, numTasks };
+    const pulo = (page - 1) * maxPerPage
+    const handler = Meteor.subscribe('tasks');
+    const tasks = TasksCollection.find(filter,
+      {
+        limit: maxPerPage,
+        skip: pulo
+      }).fetch();
+    const numTasks = TasksCollection.find(filter).count();
+    return { tasks, numTasks };
   });
 
   useEffect(() => {

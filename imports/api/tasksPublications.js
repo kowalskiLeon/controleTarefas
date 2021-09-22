@@ -13,6 +13,10 @@ Meteor.publish('filterTasks', function publishTasksWithTasks(filter, maxPerPage,
     });
 });
 
+Meteor.publish('filterTasksNoSkip', function publishTasksWithTasks(filter) {
+  return TasksCollection.find(filter);
+});
+
 Meteor.publish('findById', function publishTasksWithTasks(id) {
   return TasksCollection.find({
     _id: id

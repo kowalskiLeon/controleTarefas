@@ -139,5 +139,11 @@ Meteor.methods({
       }
     ).count();
   },
+  
+  'tasks.getCountVisible'() {
+    return TasksCollection.find(
+      { $or: [{ visivel: true }, { cadastradaPor: this.userId }, { userId: this.userId }] }
+    ).count();
+  },
 
 });
